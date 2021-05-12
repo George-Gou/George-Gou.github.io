@@ -1,6 +1,6 @@
 languageCode = "en-us"
 title = "George Gou"
-baseurl = "https://george-gou.github.io/"
+baseurl = "https://goujianing.ml/"
 disableKinds = ["sitemap", "RSS"]
 
 [params]
@@ -14,12 +14,12 @@ disableKinds = ["sitemap", "RSS"]
 [[params.social]]
   medium = "Academic"
   icon = "university"
-  link = "https://George-Gou.github.io/home"
+  link = "https://goujianing.ml/home"
 
 [[params.social]]
   medium = "Blog"
   icon = "edit"
-  link = "https://George-Gou.github.io/blog"
+  link = "https://goujialing.ml/blog"
 
 [[params.social]]
   medium = "Github"
