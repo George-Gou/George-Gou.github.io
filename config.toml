@@ -1,0 +1,33 @@
+languageCode = "en-us"
+title = "George Gou"
+baseurl = "https://george-gou.github.io/"
+disableKinds = ["sitemap", "RSS"]
+
+[params]
+  name = "Jianing Gou"
+  about = "George Gou &nbsp;&bull;&nbsp; <a href='http://www.apm.cas.cn/' target='_black'>中科院精密测量院</a> &nbsp;&bull;&nbsp; Open Sourcer/ Geophysics and Geodesy"
+  copyright = "George&Bird Inc 2019 - Now"
+  #Disable the scrolling background by entering any string for bg_scroll. Enable by leaving bg_scroll empty.
+  bg_scroll = ""
+  
+
+[[params.social]]
+  medium = "Academic"
+  icon = "university"
+  link = "https://George-Gou.github.io/home"
+
+[[params.social]]
+  medium = "Blog"
+  icon = "edit"
+  link = "https://George-Gou.github.io/blog"
+
+[[params.social]]
+  medium = "Github"
+  icon = "github"
+  link = "https://github.com/George-Gou"
+
+[[params.social]]
+  medium = "Email"
+  icon = "envelope-o"
+  link = "mailto:goujianing19@mails.ucas.ac.cn"
+
