@@ -19,7 +19,7 @@ disableKinds = ["sitemap", "RSS"]
 [[params.social]]
   medium = "Blog"
   icon = "edit"
-  link = "https://goujialing.ml/blog"
+  link = "https://goujianing.ml/blog"
 
 [[params.social]]
   medium = "Github"
