@@ -1,10 +1,10 @@
 languageCode = "en-us"
-title = "George Gou"
+title = "Gravpher"
 baseurl = "https://goujianing.ml/"
 disableKinds = ["sitemap", "RSS"]
 
 [params]
-  name = "Jianing Gou(George Gou)"
+  name = "Jianing Gou(George Gou/Gravpher)"
   about = " &nbsp;&bull;&nbsp; <a href='http://www.apm.cas.cn/' target='_black'>Innovation Academy for Precision Measurement Science and Technology, CAS</a> &nbsp;&bull;&nbsp; Open Sourcer/ Geophysics and Geodesy"
   copyright = "Do one thing at a time, and do well - George&Bird Inc 2019~forever"
   #Disable the scrolling background by entering any string for bg_scroll. Enable by leaving bg_scroll empty.
