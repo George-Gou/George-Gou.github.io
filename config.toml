@@ -1,16 +1,21 @@
 languageCode = "en-us"
-title = "George Gou"
+title = "Gravpher"
 baseurl = "https://goujianing.ml/"
 disableKinds = ["sitemap", "RSS"]
 
 [params]
   name = "Jianing Gou(George Gou)"
-  about = " &nbsp;&bull;&nbsp; <a href='http://www.eqhb.gov.cn/' target='_black'>Institute of seismology</a> &nbsp;&bull;&nbsp; Software engineer/ Geodesy"
-  copyright = "Do one thing at a time, and do well - George&Bird Inc 2019 ~ forever"
+  about = " &nbsp;&bull;&nbsp; <a href='http://www.eqhb.gov.cn/' target='_black'>Institute of seismology</a> &nbsp;&bull;&nbsp; Software engineer/ Geodesy&Geophysics"
+  copyright = "Do one thing at a time, and do well - George&Bird 2019 ~ forever"
   #Disable the scrolling background by entering any string for bg_scroll. Enable by leaving bg_scroll empty.
   bg_scroll = ""
   
 
+[[params.social]]
+  medium = "Github"
+  icon = "github"
+  link = "https://github.com/George-Gou"
+  
 [[params.social]]
   medium = "Academic"
   icon = "university"
@@ -26,15 +31,17 @@ disableKinds = ["sitemap", "RSS"]
   icon = "edit"
   link = "https://goujianing.ml/blog"
 
-[[params.social]]
-  medium = "Github"
-  icon = "github"
-  link = "https://github.com/George-Gou"
+
   
 [[params.social]]
   medium = "Link"
   icon = "link"
   link = "https://me.goujianing.ml/link/"
-
+  
+[[params.social]]
+  medium = "Link"
+  icon = "wechat"
+  link = "https://me.goujianing.ml/files/wechat.png"
+  
 
 
