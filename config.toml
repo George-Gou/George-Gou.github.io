@@ -19,7 +19,7 @@ disableKinds = ["sitemap", "RSS"]
 [[params.social]]
   medium = "Academic"
   icon = "university"
-  link = "https://goujianing.ml/home"
+  link = "https://me.goujianing.ml"
 
 [[params.social]]
   medium = "Email"
