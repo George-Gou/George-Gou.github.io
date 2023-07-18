@@ -1,81 +1,654 @@
-<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Docker网络 Docker 是一个及其轻量化的应用容器，能够轻松将开发环境与应用打包至镜像进行发布，能达到“Develop Once，Run Anywhere”的效果。Docker 容器跟宿主机、不同容器之间究竟是如何通信的呢？这是Docker的核心内容。
-Docker0 1 2 3 4 5 6 7 8 9 (base) george@george ~/test$ ifconfig docker0: flags=4163&amp;lt;UP,BROADCAST,RUNNING,MULTICAST&amp;gt; mtu 1500 inet 172.17.0.1 netmask 255.255.0.0 broadcast 172.17.255.255 inet6 fe80::42:9eff:fe6d:8c1c prefixlen 64 scopeid 0x20&amp;lt;link&amp;gt; ether 02:42:9e:6d:8c:1c txqueuelen 0 (Ethernet) RX packets 134541 bytes 14183525 (14.1 MB) RX errors 0 dropped 0 overruns 0 frame 0 TX packets 501775 bytes 629260746 (629.2 MB) TX errors 0 dropped 0 overruns 0 carrier 0 collisions 0 开启了Docker之后，发现网卡中多了一个 Docker0 ，这可以充当一个路由器的功能，使得所有容器通过网络桥接的方式相互通信。如我们启动其他容器后："><title>Docker网络探秘</title><link rel=canonical href=https://goujianing.ml/p/docker%E7%BD%91%E7%BB%9C%E6%8E%A2%E7%A7%98/><link rel=stylesheet href=/scss/style.min.83fdf04f357d6c514ee15e600463b045549e8b40c428f14454adecaa742b352f.css><meta property="og:title" content="Docker网络探秘"><meta property="og:description" content="Docker网络 Docker 是一个及其轻量化的应用容器，能够轻松将开发环境与应用打包至镜像进行发布，能达到“Develop Once，Run Anywhere”的效果。Docker 容器跟宿主机、不同容器之间究竟是如何通信的呢？这是Docker的核心内容。
-Docker0 1 2 3 4 5 6 7 8 9 (base) george@george ~/test$ ifconfig docker0: flags=4163&amp;lt;UP,BROADCAST,RUNNING,MULTICAST&amp;gt; mtu 1500 inet 172.17.0.1 netmask 255.255.0.0 broadcast 172.17.255.255 inet6 fe80::42:9eff:fe6d:8c1c prefixlen 64 scopeid 0x20&amp;lt;link&amp;gt; ether 02:42:9e:6d:8c:1c txqueuelen 0 (Ethernet) RX packets 134541 bytes 14183525 (14.1 MB) RX errors 0 dropped 0 overruns 0 frame 0 TX packets 501775 bytes 629260746 (629.2 MB) TX errors 0 dropped 0 overruns 0 carrier 0 collisions 0 开启了Docker之后，发现网卡中多了一个 Docker0 ，这可以充当一个路由器的功能，使得所有容器通过网络桥接的方式相互通信。如我们启动其他容器后："><meta property="og:url" content="https://goujianing.ml/p/docker%E7%BD%91%E7%BB%9C%E6%8E%A2%E7%A7%98/"><meta property="og:site_name" content="Jianing Gou (Codingbully)"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:tag" content="docker"><meta property="article:published_time" content="2021-11-03T16:48:18+08:00"><meta property="article:modified_time" content="2021-11-03T16:48:18+08:00"><meta name=twitter:title content="Docker网络探秘"><meta name=twitter:description content="Docker网络 Docker 是一个及其轻量化的应用容器，能够轻松将开发环境与应用打包至镜像进行发布，能达到“Develop Once，Run Anywhere”的效果。Docker 容器跟宿主机、不同容器之间究竟是如何通信的呢？这是Docker的核心内容。
-Docker0 1 2 3 4 5 6 7 8 9 (base) george@george ~/test$ ifconfig docker0: flags=4163&amp;lt;UP,BROADCAST,RUNNING,MULTICAST&amp;gt; mtu 1500 inet 172.17.0.1 netmask 255.255.0.0 broadcast 172.17.255.255 inet6 fe80::42:9eff:fe6d:8c1c prefixlen 64 scopeid 0x20&amp;lt;link&amp;gt; ether 02:42:9e:6d:8c:1c txqueuelen 0 (Ethernet) RX packets 134541 bytes 14183525 (14.1 MB) RX errors 0 dropped 0 overruns 0 frame 0 TX packets 501775 bytes 629260746 (629.2 MB) TX errors 0 dropped 0 overruns 0 carrier 0 collisions 0 开启了Docker之后，发现网卡中多了一个 Docker0 ，这可以充当一个路由器的功能，使得所有容器通过网络桥接的方式相互通信。如我们启动其他容器后："><link rel="shortcut icon" href=/favicon.ico></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
-<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/avatar_huda2458f72ce188392d75c5d51cd8e24e_373_300x0_resize_box_3.png width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>Jianing Gou (Codingbully)</a></h1><h2 class=site-description>软件、测绘、计量全栈工程师.</h2></div></header><ol class=social-menu><li><a href='https://space.bilibili.com/320619371?spm_id_from=333.1007.0.0' target=_blank title=Bilibili rel=me><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="96" height="96"><path fill="#1e88e5" d="M36.5 12h-7.086l3.793-3.793c.391-.391.391-1.023.0-1.414s-1.023-.391-1.414.0L26.586 12h-5.172l-5.207-5.207c-.391-.391-1.023-.391-1.414.0s-.391 1.023.0 1.414L18.586 12H12.5C9.467 12 7 14.467 7 17.5v15c0 3.033 2.467 5.5 5.5 5.5h2c0 .829.671 1.5 1.5 1.5s1.5-.671 1.5-1.5h14c0 .829.671 1.5 1.5 1.5s1.5-.671 1.5-1.5h2c3.033.0 5.5-2.467 5.5-5.5v-15c0-3.033-2.467-5.5-5.5-5.5zM39 32.5c0 1.378-1.122 2.5-2.5 2.5h-24c-1.378.0-2.5-1.122-2.5-2.5v-15c0-1.378 1.122-2.5 2.5-2.5h24c1.378.0 2.5 1.122 2.5 2.5v15z"/><rect width="2.75" height="7.075" x="30.625" y="18.463" fill="#1e88e5" transform="rotate(-71.567 32.001 22)"/><rect width="7.075" height="2.75" x="14.463" y="20.625" fill="#1e88e5" transform="rotate(-18.432 17.998 21.997)"/><path fill="#1e88e5" d="M28.033 27.526c-.189.593-.644.896-1.326.896-.076-.013-.139-.013-.24-.025-.013.0-.05-.013-.063.0-.341-.05-.745-.177-1.061-.467-.366-.265-.808-.745-.947-1.477.0.0-.29 1.174-.896 1.49-.076.05-.164.114-.253.164l-.038.025c-.303.164-.682.265-1.086.278-.568-.051-.947-.328-1.136-.821l-.063-.164-1.427.656.05.139c.467 1.124 1.465 1.768 2.74 1.768.922.0 1.667-.303 2.209-.909.556.606 1.288.909 2.209.909 1.856.0 2.55-1.288 2.765-1.843l.051-.126-1.427-.657L28.033 27.526z"/></svg></a></li><li><a href=https://github.com/George-Gou target=_blank title=GitHub rel=me><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://me.goujianing.ml/files/wechat.png target=_blank title=wechat rel=me><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="100" height="100"><path d="M19 6C9.625 6 2 12.503906 2 20.5c0 4.269531 2.058594 8.109375 5.816406 10.890625L5.179688 39.304688l8.246093-5.105469C15.714844 34.917969 18.507813 35.171875 21.203125 34.875 23.390625 39.109375 28.332031 42 34 42 35.722656 42 37.316406 41.675781 38.796875 41.234375l6.847656 3.832031-1.910156-6.550781C46.3125 36.375 48 33.394531 48 30c0-6.210937-5.402344-11.164062-12.25-11.894531C34.40625 11.152344 27.367188 6 19 6zm-6 8C14.101563 14 15 14.898438 15 16c0 1.101563-.898437 2-2 2C11.898438 18 11 17.101563 11 16 11 14.898438 11.898438 14 13 14zm12 0C26.101563 14 27 14.898438 27 16 27 17.101563 26.101563 18 25 18 23.898438 18 23 17.101563 23 16 23 14.898438 23.898438 14 25 14zm9 6c6.746094.0 12 4.535156 12 10 0 2.957031-1.507812 5.550781-3.996094 7.394531L41.445313 37.8125 42.355469 40.933594l-3.25-1.824219-.421875.140625C37.285156 39.71875 35.6875 40 34 40c-6.746094.0-12-4.535156-12-10s5.253906-10 12-10zm-4.5 6C28.699219 26 28 26.699219 28 27.5S28.699219 29 29.5 29 31 28.300781 31 27.5 30.300781 26 29.5 26zm9 0C37.699219 26 37 26.699219 37 27.5S37.699219 29 38.5 29 40 28.300781 40 27.5 39.300781 26 38.5 26z"/></svg></a></li><li><a href=https://www.youtube.com/channel/UC0KSAsvYhalyewiYHXRXBqA target=_blank title=Youtube rel=me><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="96" height="96"><linearGradient id="PgB_UHa29h0TpFV_moJI9a" x1="9.816" x2="41.246" y1="9.871" y2="41.301" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f44f5a"/><stop offset=".443" stop-color="#ee3d4a"/><stop offset="1" stop-color="#e52030"/></linearGradient><path fill="url(#PgB_UHa29h0TpFV_moJI9a)" d="M45.012 34.56c-.439 2.24-2.304 3.947-4.608 4.267C36.783 39.36 30.748 40 23.945 40c-6.693.0-12.728-.64-16.459-1.173-2.304-.32-4.17-2.027-4.608-4.267C2.439 32.107 2 28.48 2 24s.439-8.107.878-10.56c.439-2.24 2.304-3.947 4.608-4.267C11.107 8.64 17.142 8 23.945 8s12.728.64 16.459 1.173c2.304.32 4.17 2.027 4.608 4.267C45.451 15.893 46 19.52 46 24 45.89 28.48 45.451 32.107 45.012 34.56z"/><path d="M32.352 22.44l-11.436-7.624c-.577-.385-1.314-.421-1.925-.093C18.38 15.05 18 15.683 18 16.376v15.248c0 .693.38 1.327.991 1.654.278.149.581.222.884.222.364.0.726-.106 1.04-.315l11.436-7.624c.523-.349.835-.932.835-1.56C33.187 23.372 32.874 22.789 32.352 22.44z" opacity=".05"/><path d="M20.681 15.237l10.79 7.194c.689.495 1.153.938 1.153 1.513.0.575-.224.976-.715 1.334-.371.27-11.045 7.364-11.045 7.364-.901.604-2.364.476-2.364-1.499V16.744C18.5 14.739 20.084 14.839 20.681 15.237z" opacity=".07"/><path fill="#fff" d="M19 31.568V16.433c0-.743.828-1.187 1.447-.774l11.352 7.568c.553.368.553 1.18.0 1.549l-11.352 7.568C19.828 32.755 19 32.312 19 31.568z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg><span>主页</span></a></li><li><a href=/%E5%85%B3%E4%BA%8E/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span>关于</span></a></li><li><a href=/archives/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg><span>归档</span></a></li><li><a href=/search/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg><span>搜索</span></a></li><li><a href=/links/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span>Links</span></a></li><li><a href=/%E6%8D%90%E8%B5%A0/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span>捐赠</span></a></li><div class=menu-bottom-section><li id=dark-mode-toggle><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><span>暗色模式</span></li></div></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#docker网络>Docker网络</a><ol><li><a href=#docker0>Docker0</a></li><li><a href=#如何使用docker部署-redis-集群>如何使用Docker部署 redis 集群</a></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><div class=article-title-wrapper><h2 class=article-title><a href=/p/docker%E7%BD%91%E7%BB%9C%E6%8E%A2%E7%A7%98/>Docker网络探秘</a></h2></div><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>Nov 03, 2021</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>阅读时长: 2 分钟</time></div></footer></div></header><section class=article-content><h2 id=docker网络>Docker网络</h2><p>Docker 是一个及其轻量化的应用容器，能够轻松将开发环境与应用打包至镜像进行发布，能达到“Develop Once，Run Anywhere”的效果。Docker 容器跟宿主机、不同容器之间究竟是如何通信的呢？这是Docker的核心内容。</p><h3 id=docker0>Docker0</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
-</span><span class=lnt>2
-</span><span class=lnt>3
-</span><span class=lnt>4
-</span><span class=lnt>5
-</span><span class=lnt>6
-</span><span class=lnt>7
-</span><span class=lnt>8
-</span><span class=lnt>9
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=o>(</span>base<span class=o>)</span> george@george ~/test$ ifconfig  
-</span></span><span class=line><span class=cl>docker0: <span class=nv>flags</span><span class=o>=</span>4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu <span class=m>1500</span>
-</span></span><span class=line><span class=cl>        inet 172.17.0.1  netmask 255.255.0.0  broadcast 172.17.255.255
-</span></span><span class=line><span class=cl>        inet6 fe80::42:9eff:fe6d:8c1c  prefixlen <span class=m>64</span>  scopeid 0x20&lt;link&gt;
-</span></span><span class=line><span class=cl>        ether 02:42:9e:6d:8c:1c  txqueuelen <span class=m>0</span>  <span class=o>(</span>Ethernet<span class=o>)</span>
-</span></span><span class=line><span class=cl>        RX packets <span class=m>134541</span>  bytes <span class=m>14183525</span> <span class=o>(</span>14.1 MB<span class=o>)</span>
-</span></span><span class=line><span class=cl>        RX errors <span class=m>0</span>  dropped <span class=m>0</span>  overruns <span class=m>0</span>  frame <span class=m>0</span>
-</span></span><span class=line><span class=cl>        TX packets <span class=m>501775</span>  bytes <span class=m>629260746</span> <span class=o>(</span>629.2 MB<span class=o>)</span>
-</span></span><span class=line><span class=cl>        TX errors <span class=m>0</span>  dropped <span class=m>0</span> overruns <span class=m>0</span>  carrier <span class=m>0</span>  collisions <span class=m>0</span>
-</span></span></code></pre></td></tr></table></div></div><p>开启了Docker之后，发现网卡中多了一个 Docker0 ，这可以充当一个路由器的功能，使得所有容器通过网络桥接的方式相互通信。如我们启动其他容器后：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
-</span><span class=lnt>2
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>docker1：tomcat01 172.17.0.2
-</span></span><span class=line><span class=cl>docker2：tomcat02 172.17.0.3
-</span></span></code></pre></td></tr></table></div></div><p><img src=https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/docker_net.png loading=lazy alt=img></p><p>如果容器采用 host 模式，这种情况下容器与宿主机共享网络，其余情况通过 veth-pair 进行桥接，进而实现容器间的通信。</p><h3 id=如何使用docker部署-redis-集群>如何使用Docker部署 redis 集群</h3><p>在如今的大数据与机器学习时代，几乎所有的服务都跑在集群上的。相比单机服务器来说，集群能够发挥负载均衡、高可用等特性。下面将演示如何在 docker 容器中部署 6 个redis 集群。</p><p>1、创建子网</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
-</span><span class=lnt>2
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ docker network create redis --subnet 172.38.0.0/16
-</span></span><span class=line><span class=cl>通过构建子网，使得redis集群处于同一子网
-</span></span></code></pre></td></tr></table></div></div><p>2、创建redis集群的配置文件</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
-</span><span class=lnt> 2
-</span><span class=lnt> 3
-</span><span class=lnt> 4
-</span><span class=lnt> 5
-</span><span class=lnt> 6
-</span><span class=lnt> 7
-</span><span class=lnt> 8
-</span><span class=lnt> 9
-</span><span class=lnt>10
-</span><span class=lnt>11
-</span><span class=lnt>12
-</span><span class=lnt>13
-</span><span class=lnt>14
-</span><span class=lnt>15
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=k>for</span> port in <span class=k>$(</span>seq <span class=m>1</span> 6<span class=k>)</span><span class=p>;</span> <span class=se>\
-</span></span></span><span class=line><span class=cl><span class=se></span><span class=k>do</span> <span class=se>\
-</span></span></span><span class=line><span class=cl><span class=se></span>mkdir -p /mydata/redis/node-<span class=si>${</span><span class=nv>port</span><span class=si>}</span>/conf
-</span></span><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt;/mydata/redis/node-${port}/conf/redis.conf
-</span></span></span><span class=line><span class=cl><span class=s>port 6379
-</span></span></span><span class=line><span class=cl><span class=s>bind 0.0.0.0
-</span></span></span><span class=line><span class=cl><span class=s>cluster-enabled yes
-</span></span></span><span class=line><span class=cl><span class=s>cluster-config-file nodes.conf
-</span></span></span><span class=line><span class=cl><span class=s>cluster-node-timeout 5000
-</span></span></span><span class=line><span class=cl><span class=s>cluster-announce-ip 172.38.0.1${port}
-</span></span></span><span class=line><span class=cl><span class=s>cluster-announce-port 6379
-</span></span></span><span class=line><span class=cl><span class=s>cluster-announce-bus-port 16379
-</span></span></span><span class=line><span class=cl><span class=s>sppendonly yes
-</span></span></span><span class=line><span class=cl><span class=s>EOF</span>       
-</span></span><span class=line><span class=cl><span class=k>done</span> 
-</span></span></code></pre></td></tr></table></div></div><p>3、依次启动6个redis集群</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
-</span><span class=lnt>2
-</span><span class=lnt>3
-</span><span class=lnt>4
-</span><span class=lnt>5
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ docker run -p 6371:6379 -p 16371:16379 --name redis-1 <span class=se>\
-</span></span></span><span class=line><span class=cl><span class=se></span>-v /mydata/redis/node-1/data:/data <span class=se>\
-</span></span></span><span class=line><span class=cl><span class=se></span>-v /redis_cluster/mydata/redis/node-1/conf/redis.conf:/etc/redis/redis.conf <span class=se>\
-</span></span></span><span class=line><span class=cl><span class=se></span>-d --net redis --ip 172.38.0.11 redis:5.0.9-alpine3.11 redis-server /etc/redis/redis.conf
-</span></span><span class=line><span class=cl>依次替换 端口号 redis集群名称 ip地址，启动集群
-</span></span></code></pre></td></tr></table></div></div><p>4、进入集群</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
-</span><span class=lnt>2
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ docker <span class=nb>exec</span> -it redis-1 /bin/bash
-</span></span><span class=line><span class=cl>/data <span class=c1># redis-cli --cluster create 172.38.0.11:6379 172.38.0.12:6379 172.38.0.13:6379 172.38.0.14:6379 172.38.0.15:6379 172.38.0.16:6379 --cluster-replicas 1</span>
-</span></span></code></pre></td></tr></table></div></div></section><footer class=article-footer><section class=article-tags><a href=/tags/docker/>docker</a></section><section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg><span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><div class=disqus-container><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//hugo-theme-stack.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div><style>.disqus-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding)}</style><script>window.addEventListener("onColorSchemeChange",e=>{typeof DISQUS=="object"&&DISQUS.reset({reload:!0})})</script><footer class=site-footer><section class=copyright>&copy;
-2023 Jianing Gou (Codingbully)</section><section class=powerby>I Love Yangzi Yang forever！<br>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.17.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-<button class="pswp__button pswp__button--share" title=Share></button>
-<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
-<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.js defer></script>
-<script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Docker网络 Docker 是一个及其轻量化的应用容器，能够轻松将开发环境与应用打包至镜像进行发布，能达到“Develop Once，Run Anywhere”的效果。Docker 容器跟宿主机、不同容器之间究竟是如何通信的呢？这是Docker的核心内容。
+Docker0 1 2 3 4 5 6 7 8 9 (base) george@george ~/test$ ifconfig docker0: flags=4163&amp;lt;UP,BROADCAST,RUNNING,MULTICAST&amp;gt; mtu 1500 inet 172.17.0.1 netmask 255.255.0.0 broadcast 172.17.255.255 inet6 fe80::42:9eff:fe6d:8c1c prefixlen 64 scopeid 0x20&amp;lt;link&amp;gt; ether 02:42:9e:6d:8c:1c txqueuelen 0 (Ethernet) RX packets 134541 bytes 14183525 (14.1 MB) RX errors 0 dropped 0 overruns 0 frame 0 TX packets 501775 bytes 629260746 (629.2 MB) TX errors 0 dropped 0 overruns 0 carrier 0 collisions 0 开启了Docker之后，发现网卡中多了一个 Docker0 ，这可以充当一个路由器的功能，使得所有容器通过网络桥接的方式相互通信。如我们启动其他容器后：'>
+<title>Docker网络探秘</title>
+
+<link rel='canonical' href='https://goujianing.ml/p/docker%E7%BD%91%E7%BB%9C%E6%8E%A2%E7%A7%98/'>
+
+<link rel="stylesheet" href="/scss/style.min.83fdf04f357d6c514ee15e600463b045549e8b40c428f14454adecaa742b352f.css"><meta property='og:title' content='Docker网络探秘'>
+<meta property='og:description' content='Docker网络 Docker 是一个及其轻量化的应用容器，能够轻松将开发环境与应用打包至镜像进行发布，能达到“Develop Once，Run Anywhere”的效果。Docker 容器跟宿主机、不同容器之间究竟是如何通信的呢？这是Docker的核心内容。
+Docker0 1 2 3 4 5 6 7 8 9 (base) george@george ~/test$ ifconfig docker0: flags=4163&amp;lt;UP,BROADCAST,RUNNING,MULTICAST&amp;gt; mtu 1500 inet 172.17.0.1 netmask 255.255.0.0 broadcast 172.17.255.255 inet6 fe80::42:9eff:fe6d:8c1c prefixlen 64 scopeid 0x20&amp;lt;link&amp;gt; ether 02:42:9e:6d:8c:1c txqueuelen 0 (Ethernet) RX packets 134541 bytes 14183525 (14.1 MB) RX errors 0 dropped 0 overruns 0 frame 0 TX packets 501775 bytes 629260746 (629.2 MB) TX errors 0 dropped 0 overruns 0 carrier 0 collisions 0 开启了Docker之后，发现网卡中多了一个 Docker0 ，这可以充当一个路由器的功能，使得所有容器通过网络桥接的方式相互通信。如我们启动其他容器后：'>
+<meta property='og:url' content='https://goujianing.ml/p/docker%E7%BD%91%E7%BB%9C%E6%8E%A2%E7%A7%98/'>
+<meta property='og:site_name' content='Jianing Gou (Codingbully)'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='docker' /><meta property='article:published_time' content='2021-11-03T16:48:18&#43;08:00'/><meta property='article:modified_time' content='2021-11-03T16:48:18&#43;08:00'/>
+<meta name="twitter:title" content="Docker网络探秘">
+<meta name="twitter:description" content="Docker网络 Docker 是一个及其轻量化的应用容器，能够轻松将开发环境与应用打包至镜像进行发布，能达到“Develop Once，Run Anywhere”的效果。Docker 容器跟宿主机、不同容器之间究竟是如何通信的呢？这是Docker的核心内容。
+Docker0 1 2 3 4 5 6 7 8 9 (base) george@george ~/test$ ifconfig docker0: flags=4163&amp;lt;UP,BROADCAST,RUNNING,MULTICAST&amp;gt; mtu 1500 inet 172.17.0.1 netmask 255.255.0.0 broadcast 172.17.255.255 inet6 fe80::42:9eff:fe6d:8c1c prefixlen 64 scopeid 0x20&amp;lt;link&amp;gt; ether 02:42:9e:6d:8c:1c txqueuelen 0 (Ethernet) RX packets 134541 bytes 14183525 (14.1 MB) RX errors 0 dropped 0 overruns 0 frame 0 TX packets 501775 bytes 629260746 (629.2 MB) TX errors 0 dropped 0 overruns 0 carrier 0 collisions 0 开启了Docker之后，发现网卡中多了一个 Docker0 ，这可以充当一个路由器的功能，使得所有容器通过网络桥接的方式相互通信。如我们启动其他容器后：">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Jianing Gou (Codingbully)</a></h1>
+            <h2 class="site-description">软件、测绘、计量全栈工程师.</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://space.bilibili.com/320619371?spm_id_from=333.1007.0.0'
+                        target="_blank"
+                        title="Bilibili"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 48 48" width="96px" height="96px"><path fill="#1e88e5" d="M36.5,12h-7.086l3.793-3.793c0.391-0.391,0.391-1.023,0-1.414s-1.023-0.391-1.414,0L26.586,12 h-5.172l-5.207-5.207c-0.391-0.391-1.023-0.391-1.414,0s-0.391,1.023,0,1.414L18.586,12H12.5C9.467,12,7,14.467,7,17.5v15 c0,3.033,2.467,5.5,5.5,5.5h2c0,0.829,0.671,1.5,1.5,1.5s1.5-0.671,1.5-1.5h14c0,0.829,0.671,1.5,1.5,1.5s1.5-0.671,1.5-1.5h2 c3.033,0,5.5-2.467,5.5-5.5v-15C42,14.467,39.533,12,36.5,12z M39,32.5c0,1.378-1.122,2.5-2.5,2.5h-24c-1.378,0-2.5-1.122-2.5-2.5 v-15c0-1.378,1.122-2.5,2.5-2.5h24c1.378,0,2.5,1.122,2.5,2.5V32.5z"/><rect width="2.75" height="7.075" x="30.625" y="18.463" fill="#1e88e5" transform="rotate(-71.567 32.001 22)"/><rect width="7.075" height="2.75" x="14.463" y="20.625" fill="#1e88e5" transform="rotate(-18.432 17.998 21.997)"/><path fill="#1e88e5" d="M28.033,27.526c-0.189,0.593-0.644,0.896-1.326,0.896c-0.076-0.013-0.139-0.013-0.24-0.025 c-0.013,0-0.05-0.013-0.063,0c-0.341-0.05-0.745-0.177-1.061-0.467c-0.366-0.265-0.808-0.745-0.947-1.477 c0,0-0.29,1.174-0.896,1.49c-0.076,0.05-0.164,0.114-0.253,0.164l-0.038,0.025c-0.303,0.164-0.682,0.265-1.086,0.278 c-0.568-0.051-0.947-0.328-1.136-0.821l-0.063-0.164l-1.427,0.656l0.05,0.139c0.467,1.124,1.465,1.768,2.74,1.768 c0.922,0,1.667-0.303,2.209-0.909c0.556,0.606,1.288,0.909,2.209,0.909c1.856,0,2.55-1.288,2.765-1.843l0.051-0.126l-1.427-0.657 L28.033,27.526z"/></svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/George-Gou'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://me.goujianing.ml/files/wechat.png'
+                        target="_blank"
+                        title="wechat"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 50 50" width="100px" height="100px"><path d="M 19 6 C 9.625 6 2 12.503906 2 20.5 C 2 24.769531 4.058594 28.609375 7.816406 31.390625 L 5.179688 39.304688 L 13.425781 34.199219 C 15.714844 34.917969 18.507813 35.171875 21.203125 34.875 C 23.390625 39.109375 28.332031 42 34 42 C 35.722656 42 37.316406 41.675781 38.796875 41.234375 L 45.644531 45.066406 L 43.734375 38.515625 C 46.3125 36.375 48 33.394531 48 30 C 48 23.789063 42.597656 18.835938 35.75 18.105469 C 34.40625 11.152344 27.367188 6 19 6 Z M 13 14 C 14.101563 14 15 14.898438 15 16 C 15 17.101563 14.101563 18 13 18 C 11.898438 18 11 17.101563 11 16 C 11 14.898438 11.898438 14 13 14 Z M 25 14 C 26.101563 14 27 14.898438 27 16 C 27 17.101563 26.101563 18 25 18 C 23.898438 18 23 17.101563 23 16 C 23 14.898438 23.898438 14 25 14 Z M 34 20 C 40.746094 20 46 24.535156 46 30 C 46 32.957031 44.492188 35.550781 42.003906 37.394531 L 41.445313 37.8125 L 42.355469 40.933594 L 39.105469 39.109375 L 38.683594 39.25 C 37.285156 39.71875 35.6875 40 34 40 C 27.253906 40 22 35.464844 22 30 C 22 24.535156 27.253906 20 34 20 Z M 29.5 26 C 28.699219 26 28 26.699219 28 27.5 C 28 28.300781 28.699219 29 29.5 29 C 30.300781 29 31 28.300781 31 27.5 C 31 26.699219 30.300781 26 29.5 26 Z M 38.5 26 C 37.699219 26 37 26.699219 37 27.5 C 37 28.300781 37.699219 29 38.5 29 C 39.300781 29 40 28.300781 40 27.5 C 40 26.699219 39.300781 26 38.5 26 Z"/></svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://www.youtube.com/channel/UC0KSAsvYhalyewiYHXRXBqA'
+                        target="_blank"
+                        title="Youtube"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 48 48" width="96px" height="96px"><linearGradient id="PgB_UHa29h0TpFV_moJI9a" x1="9.816" x2="41.246" y1="9.871" y2="41.301" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f44f5a"/><stop offset=".443" stop-color="#ee3d4a"/><stop offset="1" stop-color="#e52030"/></linearGradient><path fill="url(#PgB_UHa29h0TpFV_moJI9a)" d="M45.012,34.56c-0.439,2.24-2.304,3.947-4.608,4.267C36.783,39.36,30.748,40,23.945,40	c-6.693,0-12.728-0.64-16.459-1.173c-2.304-0.32-4.17-2.027-4.608-4.267C2.439,32.107,2,28.48,2,24s0.439-8.107,0.878-10.56	c0.439-2.24,2.304-3.947,4.608-4.267C11.107,8.64,17.142,8,23.945,8s12.728,0.64,16.459,1.173c2.304,0.32,4.17,2.027,4.608,4.267	C45.451,15.893,46,19.52,46,24C45.89,28.48,45.451,32.107,45.012,34.56z"/><path d="M32.352,22.44l-11.436-7.624c-0.577-0.385-1.314-0.421-1.925-0.093C18.38,15.05,18,15.683,18,16.376	v15.248c0,0.693,0.38,1.327,0.991,1.654c0.278,0.149,0.581,0.222,0.884,0.222c0.364,0,0.726-0.106,1.04-0.315l11.436-7.624	c0.523-0.349,0.835-0.932,0.835-1.56C33.187,23.372,32.874,22.789,32.352,22.44z" opacity=".05"/><path d="M20.681,15.237l10.79,7.194c0.689,0.495,1.153,0.938,1.153,1.513c0,0.575-0.224,0.976-0.715,1.334	c-0.371,0.27-11.045,7.364-11.045,7.364c-0.901,0.604-2.364,0.476-2.364-1.499V16.744C18.5,14.739,20.084,14.839,20.681,15.237z" opacity=".07"/><path fill="#fff" d="M19,31.568V16.433c0-0.743,0.828-1.187,1.447-0.774l11.352,7.568c0.553,0.368,0.553,1.18,0,1.549	l-11.352,7.568C19.828,32.755,19,32.312,19,31.568z"/></svg>
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>主页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>归档</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E6%8D%90%E8%B5%A0/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>捐赠</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>暗色模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#docker网络">Docker网络</a>
+      <ol>
+        <li><a href="#docker0">Docker0</a></li>
+        <li><a href="#如何使用docker部署-redis-集群">如何使用Docker部署 redis 集群</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/docker%E7%BD%91%E7%BB%9C%E6%8E%A2%E7%A7%98/">Docker网络探秘</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 03, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="docker网络">Docker网络</h2>
+<p>Docker 是一个及其轻量化的应用容器，能够轻松将开发环境与应用打包至镜像进行发布，能达到“Develop Once，Run Anywhere”的效果。Docker 容器跟宿主机、不同容器之间究竟是如何通信的呢？这是Docker的核心内容。</p>
+<h3 id="docker0">Docker0</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> george@george ~/test$ ifconfig  
+</span></span><span class="line"><span class="cl">docker0: <span class="nv">flags</span><span class="o">=</span>4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu <span class="m">1500</span>
+</span></span><span class="line"><span class="cl">        inet 172.17.0.1  netmask 255.255.0.0  broadcast 172.17.255.255
+</span></span><span class="line"><span class="cl">        inet6 fe80::42:9eff:fe6d:8c1c  prefixlen <span class="m">64</span>  scopeid 0x20&lt;link&gt;
+</span></span><span class="line"><span class="cl">        ether 02:42:9e:6d:8c:1c  txqueuelen <span class="m">0</span>  <span class="o">(</span>Ethernet<span class="o">)</span>
+</span></span><span class="line"><span class="cl">        RX packets <span class="m">134541</span>  bytes <span class="m">14183525</span> <span class="o">(</span>14.1 MB<span class="o">)</span>
+</span></span><span class="line"><span class="cl">        RX errors <span class="m">0</span>  dropped <span class="m">0</span>  overruns <span class="m">0</span>  frame <span class="m">0</span>
+</span></span><span class="line"><span class="cl">        TX packets <span class="m">501775</span>  bytes <span class="m">629260746</span> <span class="o">(</span>629.2 MB<span class="o">)</span>
+</span></span><span class="line"><span class="cl">        TX errors <span class="m">0</span>  dropped <span class="m">0</span> overruns <span class="m">0</span>  carrier <span class="m">0</span>  collisions <span class="m">0</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>开启了Docker之后，发现网卡中多了一个 Docker0 ，这可以充当一个路由器的功能，使得所有容器通过网络桥接的方式相互通信。如我们启动其他容器后：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">docker1：tomcat01 172.17.0.2
+</span></span><span class="line"><span class="cl">docker2：tomcat02 172.17.0.3
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/docker_net.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+></p>
+<p>如果容器采用 host 模式，这种情况下容器与宿主机共享网络，其余情况通过 veth-pair 进行桥接，进而实现容器间的通信。</p>
+<h3 id="如何使用docker部署-redis-集群">如何使用Docker部署 redis 集群</h3>
+<p>在如今的大数据与机器学习时代，几乎所有的服务都跑在集群上的。相比单机服务器来说，集群能够发挥负载均衡、高可用等特性。下面将演示如何在 docker 容器中部署 6 个redis 集群。</p>
+<p>1、创建子网</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ docker network create redis --subnet 172.38.0.0/16
+</span></span><span class="line"><span class="cl">通过构建子网，使得redis集群处于同一子网
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>2、创建redis集群的配置文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="k">for</span> port in <span class="k">$(</span>seq <span class="m">1</span> 6<span class="k">)</span><span class="p">;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="k">do</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>mkdir -p /mydata/redis/node-<span class="si">${</span><span class="nv">port</span><span class="si">}</span>/conf
+</span></span><span class="line"><span class="cl">cat <span class="s">&lt;&lt; EOF &gt;/mydata/redis/node-${port}/conf/redis.conf
+</span></span></span><span class="line"><span class="cl"><span class="s">port 6379
+</span></span></span><span class="line"><span class="cl"><span class="s">bind 0.0.0.0
+</span></span></span><span class="line"><span class="cl"><span class="s">cluster-enabled yes
+</span></span></span><span class="line"><span class="cl"><span class="s">cluster-config-file nodes.conf
+</span></span></span><span class="line"><span class="cl"><span class="s">cluster-node-timeout 5000
+</span></span></span><span class="line"><span class="cl"><span class="s">cluster-announce-ip 172.38.0.1${port}
+</span></span></span><span class="line"><span class="cl"><span class="s">cluster-announce-port 6379
+</span></span></span><span class="line"><span class="cl"><span class="s">cluster-announce-bus-port 16379
+</span></span></span><span class="line"><span class="cl"><span class="s">sppendonly yes
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>       
+</span></span><span class="line"><span class="cl"><span class="k">done</span> 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>3、依次启动6个redis集群</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ docker run -p 6371:6379 -p 16371:16379 --name redis-1 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-v /mydata/redis/node-1/data:/data <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-v /redis_cluster/mydata/redis/node-1/conf/redis.conf:/etc/redis/redis.conf <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-d --net redis --ip 172.38.0.11 redis:5.0.9-alpine3.11 redis-server /etc/redis/redis.conf
+</span></span><span class="line"><span class="cl">依次替换 端口号 redis集群名称 ip地址，启动集群
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>4、进入集群</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ docker <span class="nb">exec</span> -it redis-1 /bin/bash
+</span></span><span class="line"><span class="cl">/data <span class="c1"># redis-cli --cluster create 172.38.0.11:6379 172.38.0.12:6379 172.38.0.13:6379 172.38.0.14:6379 172.38.0.15:6379 172.38.0.16:6379 --cluster-replicas 1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/docker/">docker</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 Jianing Gou (Codingbully)
+    </section>
+    
+    <section class="powerby">
+        
+            I Love Yangzi Yang forever！ <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        主题 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.17.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 设计
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

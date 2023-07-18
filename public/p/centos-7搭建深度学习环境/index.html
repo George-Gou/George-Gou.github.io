@@ -1,188 +1,892 @@
-<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="本文介绍如何使用CentOS 7搭建深度学习环境"><title>CentOS 7搭建深度学习环境</title><link rel=canonical href=https://goujianing.ml/p/centos-7%E6%90%AD%E5%BB%BA%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%8E%AF%E5%A2%83/><link rel=stylesheet href=/scss/style.min.83fdf04f357d6c514ee15e600463b045549e8b40c428f14454adecaa742b352f.css><meta property="og:title" content="CentOS 7搭建深度学习环境"><meta property="og:description" content="本文介绍如何使用CentOS 7搭建深度学习环境"><meta property="og:url" content="https://goujianing.ml/p/centos-7%E6%90%AD%E5%BB%BA%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%8E%AF%E5%A2%83/"><meta property="og:site_name" content="Jianing Gou (Codingbully)"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:published_time" content="2021-11-04T15:37:06+08:00"><meta property="article:modified_time" content="2021-11-04T15:37:06+08:00"><meta name=twitter:title content="CentOS 7搭建深度学习环境"><meta name=twitter:description content="本文介绍如何使用CentOS 7搭建深度学习环境"><link rel="shortcut icon" href=/favicon.ico></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
-<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/avatar_huda2458f72ce188392d75c5d51cd8e24e_373_300x0_resize_box_3.png width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>Jianing Gou (Codingbully)</a></h1><h2 class=site-description>软件、测绘、计量全栈工程师.</h2></div></header><ol class=social-menu><li><a href='https://space.bilibili.com/320619371?spm_id_from=333.1007.0.0' target=_blank title=Bilibili rel=me><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="96" height="96"><path fill="#1e88e5" d="M36.5 12h-7.086l3.793-3.793c.391-.391.391-1.023.0-1.414s-1.023-.391-1.414.0L26.586 12h-5.172l-5.207-5.207c-.391-.391-1.023-.391-1.414.0s-.391 1.023.0 1.414L18.586 12H12.5C9.467 12 7 14.467 7 17.5v15c0 3.033 2.467 5.5 5.5 5.5h2c0 .829.671 1.5 1.5 1.5s1.5-.671 1.5-1.5h14c0 .829.671 1.5 1.5 1.5s1.5-.671 1.5-1.5h2c3.033.0 5.5-2.467 5.5-5.5v-15c0-3.033-2.467-5.5-5.5-5.5zM39 32.5c0 1.378-1.122 2.5-2.5 2.5h-24c-1.378.0-2.5-1.122-2.5-2.5v-15c0-1.378 1.122-2.5 2.5-2.5h24c1.378.0 2.5 1.122 2.5 2.5v15z"/><rect width="2.75" height="7.075" x="30.625" y="18.463" fill="#1e88e5" transform="rotate(-71.567 32.001 22)"/><rect width="7.075" height="2.75" x="14.463" y="20.625" fill="#1e88e5" transform="rotate(-18.432 17.998 21.997)"/><path fill="#1e88e5" d="M28.033 27.526c-.189.593-.644.896-1.326.896-.076-.013-.139-.013-.24-.025-.013.0-.05-.013-.063.0-.341-.05-.745-.177-1.061-.467-.366-.265-.808-.745-.947-1.477.0.0-.29 1.174-.896 1.49-.076.05-.164.114-.253.164l-.038.025c-.303.164-.682.265-1.086.278-.568-.051-.947-.328-1.136-.821l-.063-.164-1.427.656.05.139c.467 1.124 1.465 1.768 2.74 1.768.922.0 1.667-.303 2.209-.909.556.606 1.288.909 2.209.909 1.856.0 2.55-1.288 2.765-1.843l.051-.126-1.427-.657L28.033 27.526z"/></svg></a></li><li><a href=https://github.com/George-Gou target=_blank title=GitHub rel=me><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://me.goujianing.ml/files/wechat.png target=_blank title=wechat rel=me><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="100" height="100"><path d="M19 6C9.625 6 2 12.503906 2 20.5c0 4.269531 2.058594 8.109375 5.816406 10.890625L5.179688 39.304688l8.246093-5.105469C15.714844 34.917969 18.507813 35.171875 21.203125 34.875 23.390625 39.109375 28.332031 42 34 42 35.722656 42 37.316406 41.675781 38.796875 41.234375l6.847656 3.832031-1.910156-6.550781C46.3125 36.375 48 33.394531 48 30c0-6.210937-5.402344-11.164062-12.25-11.894531C34.40625 11.152344 27.367188 6 19 6zm-6 8C14.101563 14 15 14.898438 15 16c0 1.101563-.898437 2-2 2C11.898438 18 11 17.101563 11 16 11 14.898438 11.898438 14 13 14zm12 0C26.101563 14 27 14.898438 27 16 27 17.101563 26.101563 18 25 18 23.898438 18 23 17.101563 23 16 23 14.898438 23.898438 14 25 14zm9 6c6.746094.0 12 4.535156 12 10 0 2.957031-1.507812 5.550781-3.996094 7.394531L41.445313 37.8125 42.355469 40.933594l-3.25-1.824219-.421875.140625C37.285156 39.71875 35.6875 40 34 40c-6.746094.0-12-4.535156-12-10s5.253906-10 12-10zm-4.5 6C28.699219 26 28 26.699219 28 27.5S28.699219 29 29.5 29 31 28.300781 31 27.5 30.300781 26 29.5 26zm9 0C37.699219 26 37 26.699219 37 27.5S37.699219 29 38.5 29 40 28.300781 40 27.5 39.300781 26 38.5 26z"/></svg></a></li><li><a href=https://www.youtube.com/channel/UC0KSAsvYhalyewiYHXRXBqA target=_blank title=Youtube rel=me><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="96" height="96"><linearGradient id="PgB_UHa29h0TpFV_moJI9a" x1="9.816" x2="41.246" y1="9.871" y2="41.301" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f44f5a"/><stop offset=".443" stop-color="#ee3d4a"/><stop offset="1" stop-color="#e52030"/></linearGradient><path fill="url(#PgB_UHa29h0TpFV_moJI9a)" d="M45.012 34.56c-.439 2.24-2.304 3.947-4.608 4.267C36.783 39.36 30.748 40 23.945 40c-6.693.0-12.728-.64-16.459-1.173-2.304-.32-4.17-2.027-4.608-4.267C2.439 32.107 2 28.48 2 24s.439-8.107.878-10.56c.439-2.24 2.304-3.947 4.608-4.267C11.107 8.64 17.142 8 23.945 8s12.728.64 16.459 1.173c2.304.32 4.17 2.027 4.608 4.267C45.451 15.893 46 19.52 46 24 45.89 28.48 45.451 32.107 45.012 34.56z"/><path d="M32.352 22.44l-11.436-7.624c-.577-.385-1.314-.421-1.925-.093C18.38 15.05 18 15.683 18 16.376v15.248c0 .693.38 1.327.991 1.654.278.149.581.222.884.222.364.0.726-.106 1.04-.315l11.436-7.624c.523-.349.835-.932.835-1.56C33.187 23.372 32.874 22.789 32.352 22.44z" opacity=".05"/><path d="M20.681 15.237l10.79 7.194c.689.495 1.153.938 1.153 1.513.0.575-.224.976-.715 1.334-.371.27-11.045 7.364-11.045 7.364-.901.604-2.364.476-2.364-1.499V16.744C18.5 14.739 20.084 14.839 20.681 15.237z" opacity=".07"/><path fill="#fff" d="M19 31.568V16.433c0-.743.828-1.187 1.447-.774l11.352 7.568c.553.368.553 1.18.0 1.549l-11.352 7.568C19.828 32.755 19 32.312 19 31.568z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg><span>主页</span></a></li><li><a href=/%E5%85%B3%E4%BA%8E/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span>关于</span></a></li><li><a href=/archives/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg><span>归档</span></a></li><li><a href=/search/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg><span>搜索</span></a></li><li><a href=/links/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span>Links</span></a></li><li><a href=/%E6%8D%90%E8%B5%A0/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span>捐赠</span></a></li><div class=menu-bottom-section><li id=dark-mode-toggle><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><span>暗色模式</span></li></div></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#1系统安装>1、系统安装</a></li><li><a href=#2安装-nvida-组件>2、安装 NVIDA 组件</a></li><li><a href=#安装cuda>安装CUDA</a></li><li><a href=#安装cudnn>安装CuDNN</a></li><li><a href=#安装显卡驱动>安装显卡驱动</a></li><li><a href=#安装-tensorflow>安装 TensorFlow</a><ol><li><a href=#端口管理>端口管理</a></li></ol></li><li><a href=#配置-jupyterhub-服务>配置 Jupyterhub 服务</a><ol><li><a href=#在-kubernetes-上部署-jupyterhub-服务>在 Kubernetes 上部署 jupyterhub 服务</a></li></ol></li><li><a href=#参考资料>参考资料</a></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><div class=article-title-wrapper><h2 class=article-title><a href=/p/centos-7%E6%90%AD%E5%BB%BA%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%8E%AF%E5%A2%83/>CentOS 7搭建深度学习环境</a></h2><h3 class=article-subtitle>本文介绍如何使用CentOS 7搭建深度学习环境</h3></div><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>Nov 04, 2021</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>阅读时长: 3 分钟</time></div></footer></div></header><section class=article-content><p>最近要做深度学习方面的应用，考虑到云平台服务虽然方便，但是价格太贵，最便宜的亚马逊（AWS）对于学生党来说也比较贵，这里就用实验室的机器搭建深度学习集群。</p><h2 id=1系统安装>1、系统安装</h2><p>这里我选择的是 CentOS 7版本，这也是许多企业的服务器部署环境，因为其稳定。如果选择 Ubuntu 等发行版可能用了一段时间就会出各种问题，如重启进不了系统，或者崩溃等问题。这里我推荐使用 Linux Server 最小的安装版本，不需要使用到桌面环境。</p><ul><li>从<a class=link href=https://mirrors.tuna.tsinghua.edu.cn/centos/7.9.2009/isos/x86_64/ target=_blank rel=noopener>清华源</a>或者官网【bing CentOS】下载 CentOS 镜像</li><li>使用 <a class=link href=https://cn.ultraiso.net/xiazai.html target=_blank rel=noopener>UltraISO</a> 制作 Linux 启动盘（推荐 8G 以上的 U 盘）</li><li>开启进入自己机器的 BIOS， 设置 U 盘启动</li><li>进入安装画面</li></ul><p><img src=https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111041557515.png loading=lazy alt=img></p><ul><li>点击 Install CentOS 7 ，回车。这里可能会出现问题，比如弹出异常，进入 dracut # 命令，这是因为安装程序找不到系统卷导致的，这里需要设置</li><li>按住 <code>Tab</code>键，弹出配置信息，按 <code>E</code>键进入编辑，将 <code>vmlinuz initrd=initrd.img inst.stage2=hd:LABEL=CentOS\x207\x20x86_64 rd.live.check quiet</code>后半部分修改为 <code>LABEL=CENTOS</code>即可，当然你也可以 <code>cd</code> 到 <code>dev</code> 目录下查找 U 盘所在盘符，将其修改为 <code>hd:/dev/sda4</code> 也可以，这里看具体的盘符。</li></ul><h2 id=2安装-nvida-组件>2、安装 NVIDA 组件</h2><p>GPU 相比 CPU 有更高算力，是机器学习应用的基础设施。CPU的指令我们都非常熟悉，我们可以轻松的开发 CPU 程序，如今 GPU 横空出世，CUDA 是一种由NVIDIA推出的通用<a class=link href=https://baike.baidu.com/item/%e5%b9%b6%e8%a1%8c%e8%ae%a1%e7%ae%97/113443 target=_blank rel=noopener>并行计算</a>架构，我们可以利用其提供的接口开发并行程序。</p><h2 id=安装cuda>安装CUDA</h2><p><a class=link href=https://developer.nvidia.com/cuda-10.0-download-archive target=_blank rel=noopener>https://developer.nvidia.com/cuda-10.0-download-archive</a></p><ul><li>CUDA的版本适配非常重要。目前TensorFlow2.0在CUDA上最稳妥的选择是10.0，如果选择10.1以上，有机率不识别GPU</li></ul><p><img src=https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111041746094.png loading=lazy alt=image-20211104174613755></p><p>按照官网给的安装命令安装</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
-</span><span class=lnt>2
-</span><span class=lnt>3
-</span><span class=lnt>4
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>Installation Instructions:
-</span></span><span class=line><span class=cl><span class=sb>`</span>sudo rpm -i cuda-repo-rhel7-10-0-local-10.0.130-410.48-1.0-1.x86_64.rpm<span class=sb>`</span>
-</span></span><span class=line><span class=cl><span class=sb>`</span>sudo yum clean all<span class=sb>`</span>
-</span></span><span class=line><span class=cl><span class=sb>`</span>sudo yum install cuda<span class=sb>`</span>
-</span></span></code></pre></td></tr></table></div></div><h2 id=安装cudnn>安装CuDNN</h2><p>CuDNN是 CUDA 和 DNN 的结合，利用 CUDA 搭配深度学习任务的框架</p><p>下载 CuDNN 需要加入开发这社区，推荐采用微信注册，在<a class=link href=https://developer.nvidia.com/rdp/form/cudnn-download-survey target=_blank rel=noopener>CuDNN</a>仓库里面下载 Runtime 版本</p><p><img src=https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111041752116.png loading=lazy alt=image-20211104175233436></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
-</span><span class=lnt>2
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ sudo rpm -ivh libcudnn7-7.6.3.30-1.cuda10.0.x86_64.rpm   <span class=c1>#必须先安装 Runtime 环境，才能继续安装开发者版本</span>
-</span></span><span class=line><span class=cl>$ sudo rpm -ivh libcudnn7-devel-7.6.3.30-1.cuda10.0.x86_64.rpm 
-</span></span></code></pre></td></tr></table></div></div><h2 id=安装显卡驱动>安装显卡驱动</h2><p>一般来说，安装最新的驱动是最佳选择。</p><ul><li>去官网下载响应显卡的版本</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
-</span><span class=lnt>2
-</span><span class=lnt>3
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ lspci <span class=p>|</span> grep -i nvidia <span class=c1># 查看显卡版本信息</span>
-</span></span><span class=line><span class=cl><span class=c1>#如果显示找不到指令，安装响应软件包即可</span>
-</span></span><span class=line><span class=cl>$ yum -y install pciutils
-</span></span></code></pre></td></tr></table></div></div><ul><li>禁用自带的 nouveau 驱动程序，防止冲突</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
-</span><span class=lnt> 2
-</span><span class=lnt> 3
-</span><span class=lnt> 4
-</span><span class=lnt> 5
-</span><span class=lnt> 6
-</span><span class=lnt> 7
-</span><span class=lnt> 8
-</span><span class=lnt> 9
-</span><span class=lnt>10
-</span><span class=lnt>11
-</span><span class=lnt>12
-</span><span class=lnt>13
-</span><span class=lnt>14
-</span><span class=lnt>15
-</span><span class=lnt>16
-</span><span class=lnt>17
-</span><span class=lnt>18
-</span><span class=lnt>19
-</span><span class=lnt>20
-</span><span class=lnt>21
-</span><span class=lnt>22
-</span><span class=lnt>23
-</span><span class=lnt>24
-</span><span class=lnt>25
-</span><span class=lnt>26
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1>#查看内核版本与源码版本是否一致</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost include<span class=o>]</span><span class=c1># ls /boot | grep vmlinu</span>
-</span></span><span class=line><span class=cl>vmlinuz-0-rescue-3a38ede036ec417cad8ea0d147ea0c46
-</span></span><span class=line><span class=cl>vmlinuz-3.10.0-1160.45.1.el7.x86_64
-</span></span><span class=line><span class=cl>vmlinuz-3.10.0-1160.el7.x86_64
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost include<span class=o>]</span><span class=c1># rpm -aq |grep kernel-devel</span>
-</span></span><span class=line><span class=cl>kernel-devel-3.10.0-1160.el7.x86_64
-</span></span><span class=line><span class=cl>kernel-devel-3.10.0-1160.45.1.el7.x86_64
-</span></span><span class=line><span class=cl><span class=c1>#屏蔽 nouveau</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost include<span class=o>]</span><span class=c1># vim /lib/modprobe.d/dist-blacklist.conf</span>
-</span></span><span class=line><span class=cl><span class=c1>#blacklist nvidiafb 将该项注释掉</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost include<span class=o>]</span><span class=c1># echo -e &#34;blacklist nouveau\noptions nouveau modeset=0&#34; &gt; /usr/lib/modprobe.d/dist-blacklist.conf</span>
-</span></span><span class=line><span class=cl><span class=c1>#重建  initramfs image</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost include<span class=o>]</span><span class=c1># mv /boot/initramfs-$(uname -r).img /boot/initramfs-$(uname -r).img.bak</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost include<span class=o>]</span><span class=c1># dracut /boot/initramfs-$(uname -r).img $(uname -r)</span>
-</span></span><span class=line><span class=cl><span class=c1>#修改运行级别为文本模式</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost include<span class=o>]</span><span class=c1># systemctl set-default multi-user.target</span>
-</span></span><span class=line><span class=cl><span class=c1>#重启</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost include<span class=o>]</span><span class=c1># reboot</span>
-</span></span><span class=line><span class=cl><span class=c1>#查看nouveau是否被禁用</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost include<span class=o>]</span><span class=c1># lsmod | grep nouveau </span>
-</span></span><span class=line><span class=cl><span class=c1>#没有返回内容，说明已经被禁用</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost include<span class=o>]</span><span class=c1># chmod 777 NVIDIA-Linux-x86_64-470.82.00.run </span>
-</span></span><span class=line><span class=cl><span class=c1>#将文件权限设置为可执行</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost include<span class=o>]</span><span class=c1># ./NVIDIA-Linux-x86_64-470.82.00.run </span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost deeplearning<span class=o>]</span><span class=c1># nvidia-smi # 有返回内容则安装完毕</span>
-</span></span></code></pre></td></tr></table></div></div><p><img src=https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111041945245.png loading=lazy alt=image-20211104194538022></p><p><img src=https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111041947802.png loading=lazy alt=image-20211104194658765></p><h2 id=安装-tensorflow>安装 TensorFlow</h2><p>先安装 Anaconda，conda是 python 较为流行的包管理工具，可以建立多个虚拟环境，为各个开发项目提供隔离环境。</p><ul><li>从官网下载 <a class=link href=https://www.anaconda.com/products/individual target=_blank rel=noopener>Anaconda</a> 最新版本</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
-</span><span class=lnt> 2
-</span><span class=lnt> 3
-</span><span class=lnt> 4
-</span><span class=lnt> 5
-</span><span class=lnt> 6
-</span><span class=lnt> 7
-</span><span class=lnt> 8
-</span><span class=lnt> 9
-</span><span class=lnt>10
-</span><span class=lnt>11
-</span><span class=lnt>12
-</span><span class=lnt>13
-</span><span class=lnt>14
-</span><span class=lnt>15
-</span><span class=lnt>16
-</span><span class=lnt>17
-</span><span class=lnt>18
-</span><span class=lnt>19
-</span><span class=lnt>20
-</span><span class=lnt>21
-</span><span class=lnt>22
-</span><span class=lnt>23
-</span><span class=lnt>24
-</span><span class=lnt>25
-</span><span class=lnt>26
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=o>[</span>root@localhost deeplearning<span class=o>]</span><span class=c1># wget https://repo.anaconda.com/archive/Anaconda3-2021.05-Linux-x86_64.sh</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost deeplearning<span class=o>]</span><span class=c1># bash Anaconda3-2021.05-Linux-x86_64.sh</span>
-</span></span><span class=line><span class=cl><span class=c1>#可以自定义安装目录，并添加环境变量</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost deeplearning<span class=o>]</span><span class=c1># echo -e &#34;PATH=$PATH:/home/george/deeplearning/anaconda3/bin\nexport PATH&#34; &gt; ~/.bashrc</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost deeplearning<span class=o>]</span><span class=c1># source ~/.bashrc</span>
-</span></span><span class=line><span class=cl><span class=c1># 创建 tensorflow 虚拟环境</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost deeplearning<span class=o>]</span><span class=c1># conda create --name tf</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost deeplearning<span class=o>]</span><span class=c1># conda activate tf</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost deeplearning<span class=o>]</span><span class=c1># conda install tensorflow-gpu==2.0.0</span>
-</span></span><span class=line><span class=cl><span class=c1>#该命令会自动安装TensorFlow所有的依赖环境</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost deeplearning<span class=o>]</span><span class=c1># conda install jupyter notebook</span>
-</span></span><span class=line><span class=cl><span class=c1>#配置 jupyter notebook，方便远程使用网页应用编写代码和文档</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost deeplearning<span class=o>]</span><span class=c1># jupyter notebook --generate-config</span>
-</span></span><span class=line><span class=cl><span class=c1>#生成jupyter配置文件</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost deeplearning<span class=o>]</span><span class=c1># python</span>
-</span></span><span class=line><span class=cl><span class=c1>#进入python交互程序</span>
-</span></span><span class=line><span class=cl>&gt;&gt;&gt; from notebook.auth import passwd
-</span></span><span class=line><span class=cl>&gt;&gt;&gt; passwd<span class=o>()</span>
-</span></span><span class=line><span class=cl>Enter password: 
-</span></span><span class=line><span class=cl>Verify password: 
-</span></span><span class=line><span class=cl><span class=c1>#这里会生成一段秘钥</span>
-</span></span><span class=line><span class=cl><span class=o>(</span>base<span class=o>)</span> <span class=o>[</span>george@localhost .jupyter<span class=o>]</span>$ vi /home/george/.jupyterjupyter_notebook_config.py
-</span></span><span class=line><span class=cl><span class=c1># 修改几个配置参数</span>
-</span></span><span class=line><span class=cl>c.NotebookApp.ip <span class=o>=</span> <span class=s1>&#39;*&#39;</span>
-</span></span><span class=line><span class=cl>c.NotebookApp.password <span class=o>=</span> <span class=s1>&#39;password your created just now&#39;</span>
-</span></span><span class=line><span class=cl>c.NotebookApp.open_browser <span class=o>=</span> <span class=s1>&#39;False&#39;</span> <span class=c1>#默认不在本地打开窗口，因为这是服务端</span>
-</span></span></code></pre></td></tr></table></div></div><h3 id=端口管理>端口管理</h3><p>使用 iptables 工具可以方便地进行端口管理</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
-</span><span class=lnt> 2
-</span><span class=lnt> 3
-</span><span class=lnt> 4
-</span><span class=lnt> 5
-</span><span class=lnt> 6
-</span><span class=lnt> 7
-</span><span class=lnt> 8
-</span><span class=lnt> 9
-</span><span class=lnt>10
-</span><span class=lnt>11
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># 关闭防火墙</span>
-</span></span><span class=line><span class=cl>systemctl stop firewalld.service
-</span></span><span class=line><span class=cl>systemctl disable firewalld.service
-</span></span><span class=line><span class=cl>systemctl mask firewalld.service
-</span></span><span class=line><span class=cl><span class=c1># 安装 iptables</span>
-</span></span><span class=line><span class=cl>sudo yum install iptables-services -y
-</span></span><span class=line><span class=cl><span class=c1># 启动 iptables</span>
-</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> iptables
-</span></span><span class=line><span class=cl>systemctl start iptables
-</span></span><span class=line><span class=cl><span class=c1>#查看其状态</span>
-</span></span><span class=line><span class=cl>systemctl statusiptables
-</span></span></code></pre></td></tr></table></div></div><p><img src=https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111042108696.png loading=lazy alt=image-20211104210853275></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
-</span><span class=lnt>2
-</span><span class=lnt>3
-</span><span class=lnt>4
-</span><span class=lnt>5
-</span><span class=lnt>6
-</span><span class=lnt>7
-</span><span class=lnt>8
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1>#编辑防火墙软件</span>
-</span></span><span class=line><span class=cl>sudo vim /etc/sysconfig/iptables
-</span></span><span class=line><span class=cl><span class=c1>#添加开放端口供服务访问</span>
-</span></span><span class=line><span class=cl>-A INPUT -m state --state NEW -m tcp -p tcp --dport <span class=m>8888</span> -j ACCEPT
-</span></span><span class=line><span class=cl><span class=c1>#重启以生效</span>
-</span></span><span class=line><span class=cl>systemctl restart iptables.service
-</span></span><span class=line><span class=cl><span class=c1># 设置防火墙开启自启</span>
-</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> iptables.service
-</span></span></code></pre></td></tr></table></div></div><h2 id=配置-jupyterhub-服务>配置 Jupyterhub 服务</h2><p>由于 jupyter notebook 只能单用户登录使用，不符合实际要求，这里我们配置 jupyterhub 服务。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
-</span><span class=lnt> 2
-</span><span class=lnt> 3
-</span><span class=lnt> 4
-</span><span class=lnt> 5
-</span><span class=lnt> 6
-</span><span class=lnt> 7
-</span><span class=lnt> 8
-</span><span class=lnt> 9
-</span><span class=lnt>10
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ conda install JupyterHub  <span class=c1>#conda 环境下安装jupyterhub</span>
-</span></span><span class=line><span class=cl>$ jupyterhub --generate-config   <span class=c1>#生成配置文件                               Writing default config to: jupyterhub_config.py</span>
-</span></span><span class=line><span class=cl>c.JupyterHub.hub_ip <span class=o>=</span> <span class=s1>&#39;&#39;</span>
-</span></span><span class=line><span class=cl>c.JupyterHub.hub_connect_ip <span class=o>=</span> <span class=s1>&#39;0.0.0.0&#39;</span>
-</span></span><span class=line><span class=cl>c.JupyterHub.bind_url <span class=o>=</span> <span class=s1>&#39;http://0.0.0.0:8888&#39;</span>
-</span></span><span class=line><span class=cl>c.JupyterHub.admin_users <span class=o>=</span> set<span class=o>(</span><span class=s1>&#39;george&#39;</span><span class=o>)</span>
-</span></span><span class=line><span class=cl>c.JupyterHub.ip <span class=o>=</span> <span class=s1>&#39;192.168.1.14&#39;</span>
-</span></span><span class=line><span class=cl>c.JupyterHub.hub_port <span class=o>=</span> <span class=m>8081</span>
-</span></span><span class=line><span class=cl><span class=c1># 启动服务</span>
-</span></span><span class=line><span class=cl><span class=c1>#$ jupyterhub </span>
-</span></span></code></pre></td></tr></table></div></div><p><img src=https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111140004651.png loading=lazy alt=image-20211114000436416></p><h3 id=在-kubernetes-上部署-jupyterhub-服务>在 Kubernetes 上部署 jupyterhub 服务</h3><p><a class=link href=https://kubernetes.io/ target=_blank rel=noopener>Kubernetes</a> 简称 k8s，是一个开源的云服务后台管理工具，把服务直接打包成容器运行在服务器上，可以将环境与宿主机隔离，不影响宿主机开发环境。</p><p><img src=https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111051515336.svg loading=lazy alt="Deployment evolution"></p><p>具体可以参考：https://z2jh.jupyter.org/en/latest/</p><h2 id=参考资料>参考资料</h2></section><footer class=article-footer><section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg><span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><div class=disqus-container><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//hugo-theme-stack.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div><style>.disqus-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding)}</style><script>window.addEventListener("onColorSchemeChange",e=>{typeof DISQUS=="object"&&DISQUS.reset({reload:!0})})</script><footer class=site-footer><section class=copyright>&copy;
-2023 Jianing Gou (Codingbully)</section><section class=powerby>I Love Yangzi Yang forever！<br>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.17.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-<button class="pswp__button pswp__button--share" title=Share></button>
-<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
-<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.js defer></script>
-<script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='本文介绍如何使用CentOS 7搭建深度学习环境'>
+<title>CentOS 7搭建深度学习环境</title>
+
+<link rel='canonical' href='https://goujianing.ml/p/centos-7%E6%90%AD%E5%BB%BA%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%8E%AF%E5%A2%83/'>
+
+<link rel="stylesheet" href="/scss/style.min.83fdf04f357d6c514ee15e600463b045549e8b40c428f14454adecaa742b352f.css"><meta property='og:title' content='CentOS 7搭建深度学习环境'>
+<meta property='og:description' content='本文介绍如何使用CentOS 7搭建深度学习环境'>
+<meta property='og:url' content='https://goujianing.ml/p/centos-7%E6%90%AD%E5%BB%BA%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%8E%AF%E5%A2%83/'>
+<meta property='og:site_name' content='Jianing Gou (Codingbully)'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-11-04T15:37:06&#43;08:00'/><meta property='article:modified_time' content='2021-11-04T15:37:06&#43;08:00'/>
+<meta name="twitter:title" content="CentOS 7搭建深度学习环境">
+<meta name="twitter:description" content="本文介绍如何使用CentOS 7搭建深度学习环境">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Jianing Gou (Codingbully)</a></h1>
+            <h2 class="site-description">软件、测绘、计量全栈工程师.</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://space.bilibili.com/320619371?spm_id_from=333.1007.0.0'
+                        target="_blank"
+                        title="Bilibili"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 48 48" width="96px" height="96px"><path fill="#1e88e5" d="M36.5,12h-7.086l3.793-3.793c0.391-0.391,0.391-1.023,0-1.414s-1.023-0.391-1.414,0L26.586,12 h-5.172l-5.207-5.207c-0.391-0.391-1.023-0.391-1.414,0s-0.391,1.023,0,1.414L18.586,12H12.5C9.467,12,7,14.467,7,17.5v15 c0,3.033,2.467,5.5,5.5,5.5h2c0,0.829,0.671,1.5,1.5,1.5s1.5-0.671,1.5-1.5h14c0,0.829,0.671,1.5,1.5,1.5s1.5-0.671,1.5-1.5h2 c3.033,0,5.5-2.467,5.5-5.5v-15C42,14.467,39.533,12,36.5,12z M39,32.5c0,1.378-1.122,2.5-2.5,2.5h-24c-1.378,0-2.5-1.122-2.5-2.5 v-15c0-1.378,1.122-2.5,2.5-2.5h24c1.378,0,2.5,1.122,2.5,2.5V32.5z"/><rect width="2.75" height="7.075" x="30.625" y="18.463" fill="#1e88e5" transform="rotate(-71.567 32.001 22)"/><rect width="7.075" height="2.75" x="14.463" y="20.625" fill="#1e88e5" transform="rotate(-18.432 17.998 21.997)"/><path fill="#1e88e5" d="M28.033,27.526c-0.189,0.593-0.644,0.896-1.326,0.896c-0.076-0.013-0.139-0.013-0.24-0.025 c-0.013,0-0.05-0.013-0.063,0c-0.341-0.05-0.745-0.177-1.061-0.467c-0.366-0.265-0.808-0.745-0.947-1.477 c0,0-0.29,1.174-0.896,1.49c-0.076,0.05-0.164,0.114-0.253,0.164l-0.038,0.025c-0.303,0.164-0.682,0.265-1.086,0.278 c-0.568-0.051-0.947-0.328-1.136-0.821l-0.063-0.164l-1.427,0.656l0.05,0.139c0.467,1.124,1.465,1.768,2.74,1.768 c0.922,0,1.667-0.303,2.209-0.909c0.556,0.606,1.288,0.909,2.209,0.909c1.856,0,2.55-1.288,2.765-1.843l0.051-0.126l-1.427-0.657 L28.033,27.526z"/></svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/George-Gou'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://me.goujianing.ml/files/wechat.png'
+                        target="_blank"
+                        title="wechat"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 50 50" width="100px" height="100px"><path d="M 19 6 C 9.625 6 2 12.503906 2 20.5 C 2 24.769531 4.058594 28.609375 7.816406 31.390625 L 5.179688 39.304688 L 13.425781 34.199219 C 15.714844 34.917969 18.507813 35.171875 21.203125 34.875 C 23.390625 39.109375 28.332031 42 34 42 C 35.722656 42 37.316406 41.675781 38.796875 41.234375 L 45.644531 45.066406 L 43.734375 38.515625 C 46.3125 36.375 48 33.394531 48 30 C 48 23.789063 42.597656 18.835938 35.75 18.105469 C 34.40625 11.152344 27.367188 6 19 6 Z M 13 14 C 14.101563 14 15 14.898438 15 16 C 15 17.101563 14.101563 18 13 18 C 11.898438 18 11 17.101563 11 16 C 11 14.898438 11.898438 14 13 14 Z M 25 14 C 26.101563 14 27 14.898438 27 16 C 27 17.101563 26.101563 18 25 18 C 23.898438 18 23 17.101563 23 16 C 23 14.898438 23.898438 14 25 14 Z M 34 20 C 40.746094 20 46 24.535156 46 30 C 46 32.957031 44.492188 35.550781 42.003906 37.394531 L 41.445313 37.8125 L 42.355469 40.933594 L 39.105469 39.109375 L 38.683594 39.25 C 37.285156 39.71875 35.6875 40 34 40 C 27.253906 40 22 35.464844 22 30 C 22 24.535156 27.253906 20 34 20 Z M 29.5 26 C 28.699219 26 28 26.699219 28 27.5 C 28 28.300781 28.699219 29 29.5 29 C 30.300781 29 31 28.300781 31 27.5 C 31 26.699219 30.300781 26 29.5 26 Z M 38.5 26 C 37.699219 26 37 26.699219 37 27.5 C 37 28.300781 37.699219 29 38.5 29 C 39.300781 29 40 28.300781 40 27.5 C 40 26.699219 39.300781 26 38.5 26 Z"/></svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://www.youtube.com/channel/UC0KSAsvYhalyewiYHXRXBqA'
+                        target="_blank"
+                        title="Youtube"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 48 48" width="96px" height="96px"><linearGradient id="PgB_UHa29h0TpFV_moJI9a" x1="9.816" x2="41.246" y1="9.871" y2="41.301" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f44f5a"/><stop offset=".443" stop-color="#ee3d4a"/><stop offset="1" stop-color="#e52030"/></linearGradient><path fill="url(#PgB_UHa29h0TpFV_moJI9a)" d="M45.012,34.56c-0.439,2.24-2.304,3.947-4.608,4.267C36.783,39.36,30.748,40,23.945,40	c-6.693,0-12.728-0.64-16.459-1.173c-2.304-0.32-4.17-2.027-4.608-4.267C2.439,32.107,2,28.48,2,24s0.439-8.107,0.878-10.56	c0.439-2.24,2.304-3.947,4.608-4.267C11.107,8.64,17.142,8,23.945,8s12.728,0.64,16.459,1.173c2.304,0.32,4.17,2.027,4.608,4.267	C45.451,15.893,46,19.52,46,24C45.89,28.48,45.451,32.107,45.012,34.56z"/><path d="M32.352,22.44l-11.436-7.624c-0.577-0.385-1.314-0.421-1.925-0.093C18.38,15.05,18,15.683,18,16.376	v15.248c0,0.693,0.38,1.327,0.991,1.654c0.278,0.149,0.581,0.222,0.884,0.222c0.364,0,0.726-0.106,1.04-0.315l11.436-7.624	c0.523-0.349,0.835-0.932,0.835-1.56C33.187,23.372,32.874,22.789,32.352,22.44z" opacity=".05"/><path d="M20.681,15.237l10.79,7.194c0.689,0.495,1.153,0.938,1.153,1.513c0,0.575-0.224,0.976-0.715,1.334	c-0.371,0.27-11.045,7.364-11.045,7.364c-0.901,0.604-2.364,0.476-2.364-1.499V16.744C18.5,14.739,20.084,14.839,20.681,15.237z" opacity=".07"/><path fill="#fff" d="M19,31.568V16.433c0-0.743,0.828-1.187,1.447-0.774l11.352,7.568c0.553,0.368,0.553,1.18,0,1.549	l-11.352,7.568C19.828,32.755,19,32.312,19,31.568z"/></svg>
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>主页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>归档</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E6%8D%90%E8%B5%A0/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>捐赠</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>暗色模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1系统安装">1、系统安装</a></li>
+    <li><a href="#2安装-nvida-组件">2、安装 NVIDA 组件</a></li>
+    <li><a href="#安装cuda">安装CUDA</a></li>
+    <li><a href="#安装cudnn">安装CuDNN</a></li>
+    <li><a href="#安装显卡驱动">安装显卡驱动</a></li>
+    <li><a href="#安装-tensorflow">安装 TensorFlow</a>
+      <ol>
+        <li><a href="#端口管理">端口管理</a></li>
+      </ol>
+    </li>
+    <li><a href="#配置-jupyterhub-服务">配置 Jupyterhub 服务</a>
+      <ol>
+        <li><a href="#在-kubernetes-上部署-jupyterhub-服务">在 Kubernetes 上部署 jupyterhub 服务</a></li>
+      </ol>
+    </li>
+    <li><a href="#参考资料">参考资料</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/centos-7%E6%90%AD%E5%BB%BA%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%8E%AF%E5%A2%83/">CentOS 7搭建深度学习环境</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            本文介绍如何使用CentOS 7搭建深度学习环境
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 04, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 3 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>最近要做深度学习方面的应用，考虑到云平台服务虽然方便，但是价格太贵，最便宜的亚马逊（AWS）对于学生党来说也比较贵，这里就用实验室的机器搭建深度学习集群。</p>
+<h2 id="1系统安装">1、系统安装</h2>
+<p>这里我选择的是 CentOS 7版本，这也是许多企业的服务器部署环境，因为其稳定。如果选择 Ubuntu 等发行版可能用了一段时间就会出各种问题，如重启进不了系统，或者崩溃等问题。这里我推荐使用 Linux Server 最小的安装版本，不需要使用到桌面环境。</p>
+<ul>
+<li>从<a class="link" href="https://mirrors.tuna.tsinghua.edu.cn/centos/7.9.2009/isos/x86_64/"  target="_blank" rel="noopener"
+    >清华源</a>或者官网【bing CentOS】下载 CentOS 镜像</li>
+<li>使用 <a class="link" href="https://cn.ultraiso.net/xiazai.html"  target="_blank" rel="noopener"
+    >UltraISO</a> 制作 Linux 启动盘（推荐 8G 以上的 U 盘）</li>
+<li>开启进入自己机器的 BIOS， 设置 U 盘启动</li>
+<li>进入安装画面</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111041557515.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+></p>
+<ul>
+<li>点击 Install CentOS 7 ，回车。这里可能会出现问题，比如弹出异常，进入 dracut # 命令，这是因为安装程序找不到系统卷导致的，这里需要设置</li>
+<li>按住 <code>Tab</code>键，弹出配置信息，按 <code>E</code>键进入编辑，将 <code>vmlinuz initrd=initrd.img inst.stage2=hd:LABEL=CentOS\x207\x20x86_64 rd.live.check quiet</code>后半部分修改为 <code>LABEL=CENTOS</code>即可，当然你也可以 <code>cd</code> 到 <code>dev</code> 目录下查找 U 盘所在盘符，将其修改为 <code>hd:/dev/sda4</code> 也可以，这里看具体的盘符。</li>
+</ul>
+<h2 id="2安装-nvida-组件">2、安装 NVIDA 组件</h2>
+<p>GPU 相比 CPU 有更高算力，是机器学习应用的基础设施。CPU的指令我们都非常熟悉，我们可以轻松的开发 CPU 程序，如今 GPU 横空出世，CUDA 是一种由NVIDIA推出的通用<a class="link" href="https://baike.baidu.com/item/%e5%b9%b6%e8%a1%8c%e8%ae%a1%e7%ae%97/113443"  target="_blank" rel="noopener"
+    >并行计算</a>架构，我们可以利用其提供的接口开发并行程序。</p>
+<h2 id="安装cuda">安装CUDA</h2>
+<p><a class="link" href="https://developer.nvidia.com/cuda-10.0-download-archive"  target="_blank" rel="noopener"
+    >https://developer.nvidia.com/cuda-10.0-download-archive</a></p>
+<ul>
+<li>CUDA的版本适配非常重要。目前TensorFlow2.0在CUDA上最稳妥的选择是10.0，如果选择10.1以上，有机率不识别GPU</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111041746094.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20211104174613755"
+	
+	
+></p>
+<p>按照官网给的安装命令安装</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Installation Instructions:
+</span></span><span class="line"><span class="cl"><span class="sb">`</span>sudo rpm -i cuda-repo-rhel7-10-0-local-10.0.130-410.48-1.0-1.x86_64.rpm<span class="sb">`</span>
+</span></span><span class="line"><span class="cl"><span class="sb">`</span>sudo yum clean all<span class="sb">`</span>
+</span></span><span class="line"><span class="cl"><span class="sb">`</span>sudo yum install cuda<span class="sb">`</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="安装cudnn">安装CuDNN</h2>
+<p>CuDNN是 CUDA 和 DNN 的结合，利用 CUDA 搭配深度学习任务的框架</p>
+<p>下载 CuDNN 需要加入开发这社区，推荐采用微信注册，在<a class="link" href="https://developer.nvidia.com/rdp/form/cudnn-download-survey"  target="_blank" rel="noopener"
+    >CuDNN</a>仓库里面下载 Runtime 版本</p>
+<p><img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111041752116.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20211104175233436"
+	
+	
+></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ sudo rpm -ivh libcudnn7-7.6.3.30-1.cuda10.0.x86_64.rpm   <span class="c1">#必须先安装 Runtime 环境，才能继续安装开发者版本</span>
+</span></span><span class="line"><span class="cl">$ sudo rpm -ivh libcudnn7-devel-7.6.3.30-1.cuda10.0.x86_64.rpm 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="安装显卡驱动">安装显卡驱动</h2>
+<p>一般来说，安装最新的驱动是最佳选择。</p>
+<ul>
+<li>去官网下载响应显卡的版本</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ lspci <span class="p">|</span> grep -i nvidia <span class="c1"># 查看显卡版本信息</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#如果显示找不到指令，安装响应软件包即可</span>
+</span></span><span class="line"><span class="cl">$ yum -y install pciutils
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>禁用自带的 nouveau 驱动程序，防止冲突</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1">#查看内核版本与源码版本是否一致</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost include<span class="o">]</span><span class="c1"># ls /boot | grep vmlinu</span>
+</span></span><span class="line"><span class="cl">vmlinuz-0-rescue-3a38ede036ec417cad8ea0d147ea0c46
+</span></span><span class="line"><span class="cl">vmlinuz-3.10.0-1160.45.1.el7.x86_64
+</span></span><span class="line"><span class="cl">vmlinuz-3.10.0-1160.el7.x86_64
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost include<span class="o">]</span><span class="c1"># rpm -aq |grep kernel-devel</span>
+</span></span><span class="line"><span class="cl">kernel-devel-3.10.0-1160.el7.x86_64
+</span></span><span class="line"><span class="cl">kernel-devel-3.10.0-1160.45.1.el7.x86_64
+</span></span><span class="line"><span class="cl"><span class="c1">#屏蔽 nouveau</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost include<span class="o">]</span><span class="c1"># vim /lib/modprobe.d/dist-blacklist.conf</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#blacklist nvidiafb 将该项注释掉</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost include<span class="o">]</span><span class="c1"># echo -e &#34;blacklist nouveau\noptions nouveau modeset=0&#34; &gt; /usr/lib/modprobe.d/dist-blacklist.conf</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#重建  initramfs image</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost include<span class="o">]</span><span class="c1"># mv /boot/initramfs-$(uname -r).img /boot/initramfs-$(uname -r).img.bak</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost include<span class="o">]</span><span class="c1"># dracut /boot/initramfs-$(uname -r).img $(uname -r)</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#修改运行级别为文本模式</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost include<span class="o">]</span><span class="c1"># systemctl set-default multi-user.target</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#重启</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost include<span class="o">]</span><span class="c1"># reboot</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#查看nouveau是否被禁用</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost include<span class="o">]</span><span class="c1"># lsmod | grep nouveau </span>
+</span></span><span class="line"><span class="cl"><span class="c1">#没有返回内容，说明已经被禁用</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost include<span class="o">]</span><span class="c1"># chmod 777 NVIDIA-Linux-x86_64-470.82.00.run </span>
+</span></span><span class="line"><span class="cl"><span class="c1">#将文件权限设置为可执行</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost include<span class="o">]</span><span class="c1"># ./NVIDIA-Linux-x86_64-470.82.00.run </span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost deeplearning<span class="o">]</span><span class="c1"># nvidia-smi # 有返回内容则安装完毕</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111041945245.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20211104194538022"
+	
+	
+></p>
+<p><img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111041947802.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20211104194658765"
+	
+	
+></p>
+<h2 id="安装-tensorflow">安装 TensorFlow</h2>
+<p>先安装 Anaconda，conda是 python 较为流行的包管理工具，可以建立多个虚拟环境，为各个开发项目提供隔离环境。</p>
+<ul>
+<li>从官网下载 <a class="link" href="https://www.anaconda.com/products/individual"  target="_blank" rel="noopener"
+    >Anaconda</a> 最新版本</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@localhost deeplearning<span class="o">]</span><span class="c1"># wget https://repo.anaconda.com/archive/Anaconda3-2021.05-Linux-x86_64.sh</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost deeplearning<span class="o">]</span><span class="c1"># bash Anaconda3-2021.05-Linux-x86_64.sh</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#可以自定义安装目录，并添加环境变量</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost deeplearning<span class="o">]</span><span class="c1"># echo -e &#34;PATH=$PATH:/home/george/deeplearning/anaconda3/bin\nexport PATH&#34; &gt; ~/.bashrc</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost deeplearning<span class="o">]</span><span class="c1"># source ~/.bashrc</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 创建 tensorflow 虚拟环境</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost deeplearning<span class="o">]</span><span class="c1"># conda create --name tf</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost deeplearning<span class="o">]</span><span class="c1"># conda activate tf</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost deeplearning<span class="o">]</span><span class="c1"># conda install tensorflow-gpu==2.0.0</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#该命令会自动安装TensorFlow所有的依赖环境</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost deeplearning<span class="o">]</span><span class="c1"># conda install jupyter notebook</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#配置 jupyter notebook，方便远程使用网页应用编写代码和文档</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost deeplearning<span class="o">]</span><span class="c1"># jupyter notebook --generate-config</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#生成jupyter配置文件</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost deeplearning<span class="o">]</span><span class="c1"># python</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#进入python交互程序</span>
+</span></span><span class="line"><span class="cl">&gt;&gt;&gt; from notebook.auth import passwd
+</span></span><span class="line"><span class="cl">&gt;&gt;&gt; passwd<span class="o">()</span>
+</span></span><span class="line"><span class="cl">Enter password: 
+</span></span><span class="line"><span class="cl">Verify password: 
+</span></span><span class="line"><span class="cl"><span class="c1">#这里会生成一段秘钥</span>
+</span></span><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> <span class="o">[</span>george@localhost .jupyter<span class="o">]</span>$ vi /home/george/.jupyterjupyter_notebook_config.py
+</span></span><span class="line"><span class="cl"><span class="c1"># 修改几个配置参数</span>
+</span></span><span class="line"><span class="cl">c.NotebookApp.ip <span class="o">=</span> <span class="s1">&#39;*&#39;</span>
+</span></span><span class="line"><span class="cl">c.NotebookApp.password <span class="o">=</span> <span class="s1">&#39;password your created just now&#39;</span>
+</span></span><span class="line"><span class="cl">c.NotebookApp.open_browser <span class="o">=</span> <span class="s1">&#39;False&#39;</span> <span class="c1">#默认不在本地打开窗口，因为这是服务端</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="端口管理">端口管理</h3>
+<p>使用 iptables 工具可以方便地进行端口管理</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 关闭防火墙</span>
+</span></span><span class="line"><span class="cl">systemctl stop firewalld.service
+</span></span><span class="line"><span class="cl">systemctl disable firewalld.service
+</span></span><span class="line"><span class="cl">systemctl mask firewalld.service
+</span></span><span class="line"><span class="cl"><span class="c1"># 安装 iptables</span>
+</span></span><span class="line"><span class="cl">sudo yum install iptables-services -y
+</span></span><span class="line"><span class="cl"><span class="c1"># 启动 iptables</span>
+</span></span><span class="line"><span class="cl">systemctl <span class="nb">enable</span> iptables
+</span></span><span class="line"><span class="cl">systemctl start iptables
+</span></span><span class="line"><span class="cl"><span class="c1">#查看其状态</span>
+</span></span><span class="line"><span class="cl">systemctl statusiptables
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111042108696.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20211104210853275"
+	
+	
+></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1">#编辑防火墙软件</span>
+</span></span><span class="line"><span class="cl">sudo vim /etc/sysconfig/iptables
+</span></span><span class="line"><span class="cl"><span class="c1">#添加开放端口供服务访问</span>
+</span></span><span class="line"><span class="cl">-A INPUT -m state --state NEW -m tcp -p tcp --dport <span class="m">8888</span> -j ACCEPT
+</span></span><span class="line"><span class="cl"><span class="c1">#重启以生效</span>
+</span></span><span class="line"><span class="cl">systemctl restart iptables.service
+</span></span><span class="line"><span class="cl"><span class="c1"># 设置防火墙开启自启</span>
+</span></span><span class="line"><span class="cl">systemctl <span class="nb">enable</span> iptables.service
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="配置-jupyterhub-服务">配置 Jupyterhub 服务</h2>
+<p>由于 jupyter notebook 只能单用户登录使用，不符合实际要求，这里我们配置 jupyterhub 服务。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ conda install JupyterHub  <span class="c1">#conda 环境下安装jupyterhub</span>
+</span></span><span class="line"><span class="cl">$ jupyterhub --generate-config   <span class="c1">#生成配置文件                               Writing default config to: jupyterhub_config.py</span>
+</span></span><span class="line"><span class="cl">c.JupyterHub.hub_ip <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+</span></span><span class="line"><span class="cl">c.JupyterHub.hub_connect_ip <span class="o">=</span> <span class="s1">&#39;0.0.0.0&#39;</span>
+</span></span><span class="line"><span class="cl">c.JupyterHub.bind_url <span class="o">=</span> <span class="s1">&#39;http://0.0.0.0:8888&#39;</span>
+</span></span><span class="line"><span class="cl">c.JupyterHub.admin_users <span class="o">=</span> set<span class="o">(</span><span class="s1">&#39;george&#39;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">c.JupyterHub.ip <span class="o">=</span> <span class="s1">&#39;192.168.1.14&#39;</span>
+</span></span><span class="line"><span class="cl">c.JupyterHub.hub_port <span class="o">=</span> <span class="m">8081</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 启动服务</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#$ jupyterhub </span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111140004651.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20211114000436416"
+	
+	
+></p>
+<h3 id="在-kubernetes-上部署-jupyterhub-服务">在 Kubernetes 上部署 jupyterhub 服务</h3>
+<p><a class="link" href="https://kubernetes.io/"  target="_blank" rel="noopener"
+    >Kubernetes</a> 简称 k8s，是一个开源的云服务后台管理工具，把服务直接打包成容器运行在服务器上，可以将环境与宿主机隔离，不影响宿主机开发环境。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111051515336.svg"
+	
+	
+	
+	loading="lazy"
+	
+		alt="Deployment evolution"
+	
+	
+></p>
+<p>具体可以参考：https://z2jh.jupyter.org/en/latest/</p>
+<h2 id="参考资料">参考资料</h2>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 Jianing Gou (Codingbully)
+    </section>
+    
+    <section class="powerby">
+        
+            I Love Yangzi Yang forever！ <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        主题 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.17.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 设计
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
