@@ -1,1 +1,1 @@
-Example site modified from https://github.com/gohugoio/hugoBasicExample
+This a personal place for writing bolg 
