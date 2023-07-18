@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Jianing Gou (Codingbully)</title><link>https://goujianing.ml/post/</link><description>Recent content in Posts on Jianing Gou (Codingbully)</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 24 Dec 2021 10:47:44 +0800</lastBuildDate><atom:link href="https://goujianing.ml/post/index.xml" rel="self" type="application/rss+xml"/><item><title>Groops docker 镜像制作</title><link>https://goujianing.ml/p/groops-docker-%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/</link><pubDate>Fri, 24 Dec 2021 10:47:44 +0800</pubDate><guid>https://goujianing.ml/p/groops-docker-%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/</guid><description>本文主要介绍如何在 Ubuntu 系统下编译重力场恢复与GNSS数据处理软件 Groops，为了大家使用简单，我制作了 docker 镜像，方便大家直接在镜像里运行 Groops 程序，不需要在本地计算机再次编译。软件文档请参考作者文档1。
+Groops 软件简介 Groops 是用 C++ 编写 (加上经典的Fortran代码) 的大地测量数据处理软件，主要功能包括利用卫星和地面重力数据恢复地球重力场、GNSS 卫星精密定轨、GNSS 数据处理等。大多数算法都经过 MPI 并行设计，加快了计算速度。
+Groops 源码编译 Groops 从源码编译成可执行文件还是比较繁琐的，具体可参考作者给出的安装文档，不知是何原因，笔者在 win 环境下编译没有成功，在 Ubuntu linux下成功编译成了可执行文件，作者还建议安装 gmt 绘图软件，以及配置一些环境变量。
+Docker 容器构建 鉴于自己编译和配置的复杂性，会给读者带来不少麻烦，这里我在 docker 中构建了可以运行 groops 的容器，大家只需要pull 我的容器地址就可以轻松在本地使用 docker 程序。
+在docker中运行 groops 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 $ (base) [george@-c ~]$ docker pull georgegou/groops_ubuntu (base) [george@-c groops]$ docker images REPOSITORY TAG IMAGE ID CREATED SIZE georgegou/groops_ubuntu latest d60f0033e85b 46 minutes ago 1.</description></item><item><title>CentOS 7搭建深度学习环境</title><link>https://goujianing.ml/p/centos-7%E6%90%AD%E5%BB%BA%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%8E%AF%E5%A2%83/</link><pubDate>Thu, 04 Nov 2021 15:37:06 +0800</pubDate><guid>https://goujianing.ml/p/centos-7%E6%90%AD%E5%BB%BA%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%8E%AF%E5%A2%83/</guid><description>最近要做深度学习方面的应用，考虑到云平台服务虽然方便，但是价格太贵，最便宜的亚马逊（AWS）对于学生党来说也比较贵，这里就用实验室的机器搭建深度学习集群。
+1、系统安装 这里我选择的是 CentOS 7版本，这也是许多企业的服务器部署环境，因为其稳定。如果选择 Ubuntu 等发行版可能用了一段时间就会出各种问题，如重启进不了系统，或者崩溃等问题。这里我推荐使用 Linux Server 最小的安装版本，不需要使用到桌面环境。
+从清华源或者官网【bing CentOS】下载 CentOS 镜像 使用 UltraISO 制作 Linux 启动盘（推荐 8G 以上的 U 盘） 开启进入自己机器的 BIOS， 设置 U 盘启动 进入安装画面 点击 Install CentOS 7 ，回车。这里可能会出现问题，比如弹出异常，进入 dracut # 命令，这是因为安装程序找不到系统卷导致的，这里需要设置 按住 Tab键，弹出配置信息，按 E键进入编辑，将 vmlinuz initrd=initrd.img inst.stage2=hd:LABEL=CentOS\x207\x20x86_64 rd.live.check quiet后半部分修改为 LABEL=CENTOS即可，当然你也可以 cd 到 dev 目录下查找 U 盘所在盘符，将其修改为 hd:/dev/sda4 也可以，这里看具体的盘符。 2、安装 NVIDA 组件 GPU 相比 CPU 有更高算力，是机器学习应用的基础设施。CPU的指令我们都非常熟悉，我们可以轻松的开发 CPU 程序，如今 GPU 横空出世，CUDA 是一种由NVIDIA推出的通用并行计算架构，我们可以利用其提供的接口开发并行程序。
+安装CUDA https://developer.nvidia.com/cuda-10.0-download-archive
+CUDA的版本适配非常重要。目前TensorFlow2.0在CUDA上最稳妥的选择是10.0，如果选择10.1以上，有机率不识别GPU 按照官网给的安装命令安装</description></item><item><title>Docker网络探秘</title><link>https://goujianing.ml/p/docker%E7%BD%91%E7%BB%9C%E6%8E%A2%E7%A7%98/</link><pubDate>Wed, 03 Nov 2021 16:48:18 +0800</pubDate><guid>https://goujianing.ml/p/docker%E7%BD%91%E7%BB%9C%E6%8E%A2%E7%A7%98/</guid><description>Docker网络 Docker 是一个及其轻量化的应用容器，能够轻松将开发环境与应用打包至镜像进行发布，能达到“Develop Once，Run Anywhere”的效果。Docker 容器跟宿主机、不同容器之间究竟是如何通信的呢？这是Docker的核心内容。
+Docker0 1 2 3 4 5 6 7 8 9 (base) george@george ~/test$ ifconfig docker0: flags=4163&amp;lt;UP,BROADCAST,RUNNING,MULTICAST&amp;gt; mtu 1500 inet 172.17.0.1 netmask 255.255.0.0 broadcast 172.17.255.255 inet6 fe80::42:9eff:fe6d:8c1c prefixlen 64 scopeid 0x20&amp;lt;link&amp;gt; ether 02:42:9e:6d:8c:1c txqueuelen 0 (Ethernet) RX packets 134541 bytes 14183525 (14.1 MB) RX errors 0 dropped 0 overruns 0 frame 0 TX packets 501775 bytes 629260746 (629.2 MB) TX errors 0 dropped 0 overruns 0 carrier 0 collisions 0 开启了Docker之后，发现网卡中多了一个 Docker0 ，这可以充当一个路由器的功能，使得所有容器通过网络桥接的方式相互通信。如我们启动其他容器后：</description></item><item><title>费曼学习法-学习笔记</title><link>https://goujianing.ml/p/%E8%B4%B9%E6%9B%BC%E5%AD%A6%E4%B9%A0%E6%B3%95-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link><pubDate>Mon, 11 Mar 2019 00:00:00 +0000</pubDate><guid>https://goujianing.ml/p/%E8%B4%B9%E6%9B%BC%E5%AD%A6%E4%B9%A0%E6%B3%95-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid><description>我们平时疯狂吸收大量知识，但是实际上，我们在实践中用到已知知识作为参考价了吗？ 实际上我们的学习知识停留在了纸面上的认知，没有经过大脑的进一步加工，没有输出，没有自己的理解，这样当然不能算作知识。那么如何高效学习呢？
+费曼学习法 大物理学家费曼的费曼学习法自问世以来，受到了大量的关注，他制定了一个简单的学习流程[1]。
+费曼学习法流程
+1、确定要学习的目标。 2、理解学习的对象 3、以教代学，用输出代替输入（非常重要） 4、进行回顾与反思 5、实现知识的简化和吸收 费曼学习法简化版
+1、Concept （理解学习对象的概念） 2、Teach （经过自己思想的加工，将学习对象传授给别人） 3、Review （复盘自己的不足，直到炉火纯青） 4、Simplify （不断简化自己的输出，做到言简意赅，一语中的，直击事物本质） 经过这一套流程后，再进行不停地Review，会让整个知识融会贯通。
+一些自己的总结 什么是学习的本质 学习的本质就是不仅仅是知识，而是思维。
+马太效应 “马太效应”，就是任何个体、群体或地区，一旦在某一个方面（如金钱、名誉、地位等）获得成功和进步，就会产生一种积累优势，就会有更多的机会取得更大的成功和进步。一但某一方面做出成就了，就会在其他方面扩大这个优势。
+费曼学习法其实就是马太效应，一但有不错的输出，或产生了不错的影响，就会反过来作用于输入，增加输入的能力，在下一次输出的时候能够产生更加好的效果。
+学习的目的究竟是什么？ 许多人把学习的目的给搞错了，学习不止是为了记住什么，而是我们通过学习建立行之有效的思维框架，并将知识运用到实践中，解决生活和工作中的实际问题。
+学习要以目标为导向，，不可毫无方向，制定的目标要有挑战性、可行性、可调性
+学习总结，形成思维导图，编写属于自己的学习笔记或者书籍。
+费曼学习法的核心（以教催学） 验证我们是否真正掌握了一种知识，在于你是否能用最简单、直白的语言说清楚他的本质。通过不断输出的方式，促使我们快速学习。
+费曼学习法格外重视“输出”的作用，复述你所理解到的知识并让听者能够简单地理解，这就是检验你学习成果最好的方式。
+输出是最大的学习力
+如何输出？过去有一门流行的课程叫做《如何成为有效学习的高手》，讲到了一个学习原则，就是学完一门知识，你要将它制作成课程，挂到互联网上销售。 一门课程，需要满足的要求有什么呢？
+你想，你要去网上买一门课程，第一，你非常急需，具有前沿和专业特性，语言简洁易懂，不要向常规教科书那样晦涩难懂；用此精准，没有歧义；一定要有一定深度，对于入门级教程也不用过于深入；一定要有自己的理解。
+参考文献 [1]: 费曼学习法（用输出倒逼输入）, 江苏凤凰文艺出版社</description></item></channel></rss>
