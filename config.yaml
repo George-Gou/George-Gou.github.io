@@ -49,8 +49,9 @@ params:
         subtitle: 软件、测绘、计量全栈工程师.
         avatar:
             enabled: false
-            local: true
+            local: false
             src: /img/avatar.png
+        
 
     article:
         math: false
@@ -99,8 +100,6 @@ params:
 ### See https://docs.stack.jimmycai.com/configuration/custom-menu.html
 ### To remove about, archive and search page menu item, remove `menu` field from their FrontMatter
 menu:
-    main: []
-
     social:
         - identifier: github
           name: GitHub
@@ -119,15 +118,14 @@ menu:
           url: https://www.youtube.com/channel/UC0KSAsvYhalyewiYHXRXBqA
           params:
               icon: youtube
-              
-
+                   
         - identifier: Bilibili
           name: Bilibili
           url: https://space.bilibili.com/320619371?spm_id_from=333.1007.0.0
           params:
               icon: bilibili
+    main: []
               
-
 related:
     includeNewer: true
     threshold: 60
@@ -138,6 +136,7 @@ related:
 
         - name: categories
           weight: 200
+
 
 markup:
     goldmark:
