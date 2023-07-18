@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Jianing Gou (Codingbully)</title><link>https://goujianing.ml/post/</link><description>Recent content in Posts on Jianing Gou (Codingbully)</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 24 Dec 2021 10:47:44 +0800</lastBuildDate><atom:link href="https://goujianing.ml/post/index.xml" rel="self" type="application/rss+xml"/><item><title>Groops docker 镜像制作</title><link>https://goujianing.ml/p/groops-docker-%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/</link><pubDate>Fri, 24 Dec 2021 10:47:44 +0800</pubDate><guid>https://goujianing.ml/p/groops-docker-%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/</guid><description>&lt;p>本文主要介绍如何在 Ubuntu 系统下编译&lt;em>重力场恢复与GNSS数据处理软件&lt;/em> &lt;strong>Groops&lt;/strong>，为了大家使用简单，我制作了 docker 镜像，方便大家直接在镜像里运行 Groops 程序，不需要在本地计算机再次编译。软件文档请参考作者文档&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>。&lt;/p>
+&lt;h2 id="groops-软件简介">Groops 软件简介&lt;/h2>
+&lt;p>Groops 是用 C++ 编写 (加上经典的Fortran代码) 的大地测量数据处理软件，主要功能包括利用卫星和地面重力数据恢复地球重力场、GNSS 卫星精密定轨、GNSS 数据处理等。大多数算法都经过 MPI 并行设计，加快了计算速度。&lt;/p>
+&lt;h2 id="groops-源码编译">Groops 源码编译&lt;/h2>
+&lt;p>Groops 从源码编译成可执行文件还是比较繁琐的，具体可参考作者给出的&lt;a class="link" href="https://github.com/groops-devs/groops/blob/main/INSTALL.md" target="_blank" rel="noopener"
+>安装文档&lt;/a>，不知是何原因，笔者在 win 环境下编译没有成功，在 Ubuntu linux下成功编译成了可执行文件，作者还建议安装 gmt 绘图软件，以及配置一些环境变量。&lt;/p>
+&lt;h2 id="docker-容器构建">Docker 容器构建&lt;/h2>
+&lt;p>鉴于自己编译和配置的复杂性，会给读者带来不少麻烦，这里我在 docker 中构建了可以运行 groops 的容器，大家只需要pull 我的容器地址就可以轻松在本地使用 docker 程序。&lt;/p>
+&lt;h3 id="在docker中运行-groops">在docker中运行 groops&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ &lt;span class="o">(&lt;/span>base&lt;span class="o">)&lt;/span> &lt;span class="o">[&lt;/span>george@-c ~&lt;span class="o">]&lt;/span>$ docker pull georgegou/groops_ubuntu
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">(&lt;/span>base&lt;span class="o">)&lt;/span> &lt;span class="o">[&lt;/span>george@-c groops&lt;span class="o">]&lt;/span>$ docker images
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">REPOSITORY TAG IMAGE ID CREATED SIZE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">georgegou/groops_ubuntu latest d60f0033e85b &lt;span class="m">46&lt;/span> minutes ago 1.53GB
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 运行docker镜像&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">(&lt;/span>base&lt;span class="o">)&lt;/span> &lt;span class="o">[&lt;/span>george@-c groops&lt;span class="o">]&lt;/span>$ docker run -it -d --name groops -v /home/george/groops:/root georgegou/groops_ubuntu /bin/bash
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># -v 的含义为挂载本地磁盘到镜像磁盘，镜像中的修改会同步到本地&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 将编译的程序添加到环境变量&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">root@978c4b5de2e6:/# &lt;span class="nb">export&lt;/span> &lt;span class="nv">PATH&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$PATH&lt;/span>:/home/george/groops/bin
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">root@978c4b5de2e6:/# &lt;span class="nv">groops&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">===&lt;/span> Starting &lt;span class="nv">GROOPS&lt;/span> &lt;span class="o">===&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Gravity Recovery Object Oriented Programming System &lt;span class="o">(&lt;/span>GROOPS&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Usage: groops &lt;span class="o">[&lt;/span>--log &amp;lt;logfile.txt&amp;gt;&lt;span class="o">]&lt;/span> &lt;span class="o">[&lt;/span>--settings &amp;lt;groopsDefaults.xml&amp;gt;&lt;span class="o">]&lt;/span> &lt;span class="o">[&lt;/span>--silent&lt;span class="o">]&lt;/span> &lt;span class="o">[&lt;/span>--global &lt;span class="nv">name&lt;/span>&lt;span class="o">=&lt;/span>value&lt;span class="o">]&lt;/span> &amp;lt;configfile.xml&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> groops --write-settings &amp;lt;groopsDefaults.xml&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> groops --xsd &amp;lt;schemafile.xsd&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> groops --doc &amp;lt;documentation/&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> -h, --help this text
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> -l, --log append messages to logfile. If a directory is given, one time-stamped logfile will be created inside &lt;span class="k">for&lt;/span> each groops script.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> -g, --global pass a global variable to config files as &lt;span class="nv">name&lt;/span>&lt;span class="o">=&lt;/span>value pair
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> -c, --settings &lt;span class="nb">read&lt;/span> constants from file &lt;span class="o">(&lt;/span>default search: groopsDefaults.xml&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> -s, --silent runs silently
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> -d, --doc generate documentation files &lt;span class="o">(&lt;/span>latex/html/...&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> -x, --xsd write xsd-schema of xml-configfile options
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> -C, --write-settings write the users current settings to file
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">GitHub repository: https://github.com/groops-devs/groops
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">(&lt;/span>Compiled: Nov &lt;span class="m">4&lt;/span> &lt;span class="m">2021&lt;/span> 00:51:04&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="构建-groops-镜像">构建 groops 镜像&lt;/h3>
+&lt;p>下面我将展示如何构建运行 groops 的docker镜像。
+1、构建镜像第一步是写 Dockerfile&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">FROM ubuntu:20.04
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">RUN &lt;span class="nv">buildDeps&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;g++ gfortran cmake libexpat1-dev libopenblas-dev libnetcdf-dev liberfa-dev mpi-default-dev gmt gmt-gshhg&amp;#39;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="nb">export&lt;/span> &lt;span class="nv">DEBIAN_FRONTEND&lt;/span>&lt;span class="o">=&lt;/span>noninteractive &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> apt-get update &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> apt-get install -y &lt;span class="nv">$buildDeps&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>2、使用docker构建镜像&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ docker build -t ubuntu:20.04-dev .
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bash-5.0$ docker images
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">REPOSITORY TAG IMAGE ID CREATED SIZE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ubuntu 20.04-dev 52464fc32c86 &lt;span class="m">1&lt;/span> day ago 885MB
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>3、运行镜像，自己编译源程序&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ docker run -it -d --name groops-dev -h groops-srv -v /Users/george/Desktop/groops/groops:/root ubuntu:20.04-dev /bin/bash
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>/Users/george/Desktop/groops/groops:为软件所在目录，将其挂载的镜像中，修改任意一处文件都会发生改变。&lt;/p>
+&lt;p>编译的具体步骤参照 &lt;a class="link" href="https://github.com/groops-devs/groops/blob/main/INSTALL.md" target="_blank" rel="noopener"
+>https://github.com/groops-devs/groops/blob/main/INSTALL.md&lt;/a>&lt;/p>
+&lt;p>大概一个多小时的编译之后，会在&lt;code>bin&lt;/code>目录下生成两个可执行文件&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">root@28ae6145f5bb:~/bin# ls
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">groops groopsMPI
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>4、提交镜像到自己的 dockerhub&lt;/p>
+&lt;p>将能跑起来的容器发布到自己的 dockerhub，方便别人拉取后就能运行程序。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ docker login
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker tag d60f0033e85b groops_ubuntu &lt;span class="c1">#镜像ID，编写个名字&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker commit -m&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;groops_ubuntu&amp;#34;&lt;/span> -a&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;georgegou&amp;#34;&lt;/span> d60f0033e85b groops_ubuntu
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker push groops_ubuntu
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="参考文献">参考文献&lt;/h2>
+&lt;div class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1">
+&lt;p>&lt;a class="link" href="https://groops-devs.github.io/groops/" target="_blank" rel="noopener"
+>https://groops-devs.github.io/groops/&lt;/a>&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2">
+&lt;p>&lt;a class="link" href="https://github.com/groops-devs/groops/issues/21" target="_blank" rel="noopener"
+>https://github.com/groops-devs/groops/issues/21&lt;/a>&amp;#160;&lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/div></description></item><item><title>CentOS 7搭建深度学习环境</title><link>https://goujianing.ml/p/centos-7%E6%90%AD%E5%BB%BA%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%8E%AF%E5%A2%83/</link><pubDate>Thu, 04 Nov 2021 15:37:06 +0800</pubDate><guid>https://goujianing.ml/p/centos-7%E6%90%AD%E5%BB%BA%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%8E%AF%E5%A2%83/</guid><description>&lt;p>最近要做深度学习方面的应用，考虑到云平台服务虽然方便，但是价格太贵，最便宜的亚马逊（AWS）对于学生党来说也比较贵，这里就用实验室的机器搭建深度学习集群。&lt;/p>
+&lt;h2 id="1系统安装">1、系统安装&lt;/h2>
+&lt;p>这里我选择的是 CentOS 7版本，这也是许多企业的服务器部署环境，因为其稳定。如果选择 Ubuntu 等发行版可能用了一段时间就会出各种问题，如重启进不了系统，或者崩溃等问题。这里我推荐使用 Linux Server 最小的安装版本，不需要使用到桌面环境。&lt;/p>
+&lt;ul>
+&lt;li>从&lt;a class="link" href="https://mirrors.tuna.tsinghua.edu.cn/centos/7.9.2009/isos/x86_64/" target="_blank" rel="noopener"
+>清华源&lt;/a>或者官网【bing CentOS】下载 CentOS 镜像&lt;/li>
+&lt;li>使用 &lt;a class="link" href="https://cn.ultraiso.net/xiazai.html" target="_blank" rel="noopener"
+>UltraISO&lt;/a> 制作 Linux 启动盘（推荐 8G 以上的 U 盘）&lt;/li>
+&lt;li>开启进入自己机器的 BIOS， 设置 U 盘启动&lt;/li>
+&lt;li>进入安装画面&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111041557515.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;ul>
+&lt;li>点击 Install CentOS 7 ，回车。这里可能会出现问题，比如弹出异常，进入 dracut # 命令，这是因为安装程序找不到系统卷导致的，这里需要设置&lt;/li>
+&lt;li>按住 &lt;code>Tab&lt;/code>键，弹出配置信息，按 &lt;code>E&lt;/code>键进入编辑，将 &lt;code>vmlinuz initrd=initrd.img inst.stage2=hd:LABEL=CentOS\x207\x20x86_64 rd.live.check quiet&lt;/code>后半部分修改为 &lt;code>LABEL=CENTOS&lt;/code>即可，当然你也可以 &lt;code>cd&lt;/code> 到 &lt;code>dev&lt;/code> 目录下查找 U 盘所在盘符，将其修改为 &lt;code>hd:/dev/sda4&lt;/code> 也可以，这里看具体的盘符。&lt;/li>
+&lt;/ul>
+&lt;h2 id="2安装-nvida-组件">2、安装 NVIDA 组件&lt;/h2>
+&lt;p>GPU 相比 CPU 有更高算力，是机器学习应用的基础设施。CPU的指令我们都非常熟悉，我们可以轻松的开发 CPU 程序，如今 GPU 横空出世，CUDA 是一种由NVIDIA推出的通用&lt;a class="link" href="https://baike.baidu.com/item/%e5%b9%b6%e8%a1%8c%e8%ae%a1%e7%ae%97/113443" target="_blank" rel="noopener"
+>并行计算&lt;/a>架构，我们可以利用其提供的接口开发并行程序。&lt;/p>
+&lt;h2 id="安装cuda">安装CUDA&lt;/h2>
+&lt;p>&lt;a class="link" href="https://developer.nvidia.com/cuda-10.0-download-archive" target="_blank" rel="noopener"
+>https://developer.nvidia.com/cuda-10.0-download-archive&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>CUDA的版本适配非常重要。目前TensorFlow2.0在CUDA上最稳妥的选择是10.0，如果选择10.1以上，有机率不识别GPU&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111041746094.png"
+loading="lazy"
+alt="image-20211104174613755"
+>&lt;/p>
+&lt;p>按照官网给的安装命令安装&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">Installation Instructions:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sb">`&lt;/span>sudo rpm -i cuda-repo-rhel7-10-0-local-10.0.130-410.48-1.0-1.x86_64.rpm&lt;span class="sb">`&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sb">`&lt;/span>sudo yum clean all&lt;span class="sb">`&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sb">`&lt;/span>sudo yum install cuda&lt;span class="sb">`&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="安装cudnn">安装CuDNN&lt;/h2>
+&lt;p>CuDNN是 CUDA 和 DNN 的结合，利用 CUDA 搭配深度学习任务的框架&lt;/p>
+&lt;p>下载 CuDNN 需要加入开发这社区，推荐采用微信注册，在&lt;a class="link" href="https://developer.nvidia.com/rdp/form/cudnn-download-survey" target="_blank" rel="noopener"
+>CuDNN&lt;/a>仓库里面下载 Runtime 版本&lt;/p>
+&lt;p>&lt;img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111041752116.png"
+loading="lazy"
+alt="image-20211104175233436"
+>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ sudo rpm -ivh libcudnn7-7.6.3.30-1.cuda10.0.x86_64.rpm &lt;span class="c1">#必须先安装 Runtime 环境，才能继续安装开发者版本&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ sudo rpm -ivh libcudnn7-devel-7.6.3.30-1.cuda10.0.x86_64.rpm
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="安装显卡驱动">安装显卡驱动&lt;/h2>
+&lt;p>一般来说，安装最新的驱动是最佳选择。&lt;/p>
+&lt;ul>
+&lt;li>去官网下载响应显卡的版本&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ lspci &lt;span class="p">|&lt;/span> grep -i nvidia &lt;span class="c1"># 查看显卡版本信息&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#如果显示找不到指令，安装响应软件包即可&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ yum -y install pciutils
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>禁用自带的 nouveau 驱动程序，防止冲突&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#查看内核版本与源码版本是否一致&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost include&lt;span class="o">]&lt;/span>&lt;span class="c1"># ls /boot | grep vmlinu&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">vmlinuz-0-rescue-3a38ede036ec417cad8ea0d147ea0c46
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">vmlinuz-3.10.0-1160.45.1.el7.x86_64
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">vmlinuz-3.10.0-1160.el7.x86_64
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost include&lt;span class="o">]&lt;/span>&lt;span class="c1"># rpm -aq |grep kernel-devel&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kernel-devel-3.10.0-1160.el7.x86_64
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kernel-devel-3.10.0-1160.45.1.el7.x86_64
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#屏蔽 nouveau&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost include&lt;span class="o">]&lt;/span>&lt;span class="c1"># vim /lib/modprobe.d/dist-blacklist.conf&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#blacklist nvidiafb 将该项注释掉&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost include&lt;span class="o">]&lt;/span>&lt;span class="c1"># echo -e &amp;#34;blacklist nouveau\noptions nouveau modeset=0&amp;#34; &amp;gt; /usr/lib/modprobe.d/dist-blacklist.conf&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#重建 initramfs image&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost include&lt;span class="o">]&lt;/span>&lt;span class="c1"># mv /boot/initramfs-$(uname -r).img /boot/initramfs-$(uname -r).img.bak&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost include&lt;span class="o">]&lt;/span>&lt;span class="c1"># dracut /boot/initramfs-$(uname -r).img $(uname -r)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#修改运行级别为文本模式&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost include&lt;span class="o">]&lt;/span>&lt;span class="c1"># systemctl set-default multi-user.target&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#重启&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost include&lt;span class="o">]&lt;/span>&lt;span class="c1"># reboot&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#查看nouveau是否被禁用&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost include&lt;span class="o">]&lt;/span>&lt;span class="c1"># lsmod | grep nouveau &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#没有返回内容，说明已经被禁用&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost include&lt;span class="o">]&lt;/span>&lt;span class="c1"># chmod 777 NVIDIA-Linux-x86_64-470.82.00.run &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#将文件权限设置为可执行&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost include&lt;span class="o">]&lt;/span>&lt;span class="c1"># ./NVIDIA-Linux-x86_64-470.82.00.run &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost deeplearning&lt;span class="o">]&lt;/span>&lt;span class="c1"># nvidia-smi # 有返回内容则安装完毕&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111041945245.png"
+loading="lazy"
+alt="image-20211104194538022"
+>&lt;/p>
+&lt;p>&lt;img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111041947802.png"
+loading="lazy"
+alt="image-20211104194658765"
+>&lt;/p>
+&lt;h2 id="安装-tensorflow">安装 TensorFlow&lt;/h2>
+&lt;p>先安装 Anaconda，conda是 python 较为流行的包管理工具，可以建立多个虚拟环境，为各个开发项目提供隔离环境。&lt;/p>
+&lt;ul>
+&lt;li>从官网下载 &lt;a class="link" href="https://www.anaconda.com/products/individual" target="_blank" rel="noopener"
+>Anaconda&lt;/a> 最新版本&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost deeplearning&lt;span class="o">]&lt;/span>&lt;span class="c1"># wget https://repo.anaconda.com/archive/Anaconda3-2021.05-Linux-x86_64.sh&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost deeplearning&lt;span class="o">]&lt;/span>&lt;span class="c1"># bash Anaconda3-2021.05-Linux-x86_64.sh&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#可以自定义安装目录，并添加环境变量&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost deeplearning&lt;span class="o">]&lt;/span>&lt;span class="c1"># echo -e &amp;#34;PATH=$PATH:/home/george/deeplearning/anaconda3/bin\nexport PATH&amp;#34; &amp;gt; ~/.bashrc&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost deeplearning&lt;span class="o">]&lt;/span>&lt;span class="c1"># source ~/.bashrc&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 创建 tensorflow 虚拟环境&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost deeplearning&lt;span class="o">]&lt;/span>&lt;span class="c1"># conda create --name tf&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost deeplearning&lt;span class="o">]&lt;/span>&lt;span class="c1"># conda activate tf&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost deeplearning&lt;span class="o">]&lt;/span>&lt;span class="c1"># conda install tensorflow-gpu==2.0.0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#该命令会自动安装TensorFlow所有的依赖环境&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost deeplearning&lt;span class="o">]&lt;/span>&lt;span class="c1"># conda install jupyter notebook&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#配置 jupyter notebook，方便远程使用网页应用编写代码和文档&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost deeplearning&lt;span class="o">]&lt;/span>&lt;span class="c1"># jupyter notebook --generate-config&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#生成jupyter配置文件&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@localhost deeplearning&lt;span class="o">]&lt;/span>&lt;span class="c1"># python&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#进入python交互程序&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&amp;gt;&amp;gt;&amp;gt; from notebook.auth import passwd
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&amp;gt;&amp;gt;&amp;gt; passwd&lt;span class="o">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Enter password:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Verify password:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#这里会生成一段秘钥&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">(&lt;/span>base&lt;span class="o">)&lt;/span> &lt;span class="o">[&lt;/span>george@localhost .jupyter&lt;span class="o">]&lt;/span>$ vi /home/george/.jupyterjupyter_notebook_config.py
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 修改几个配置参数&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">c.NotebookApp.ip &lt;span class="o">=&lt;/span> &lt;span class="s1">&amp;#39;*&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">c.NotebookApp.password &lt;span class="o">=&lt;/span> &lt;span class="s1">&amp;#39;password your created just now&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">c.NotebookApp.open_browser &lt;span class="o">=&lt;/span> &lt;span class="s1">&amp;#39;False&amp;#39;&lt;/span> &lt;span class="c1">#默认不在本地打开窗口，因为这是服务端&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="端口管理">端口管理&lt;/h3>
+&lt;p>使用 iptables 工具可以方便地进行端口管理&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 关闭防火墙&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl stop firewalld.service
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl disable firewalld.service
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl mask firewalld.service
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 安装 iptables&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo yum install iptables-services -y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 启动 iptables&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl &lt;span class="nb">enable&lt;/span> iptables
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl start iptables
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#查看其状态&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl statusiptables
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111042108696.png"
+loading="lazy"
+alt="image-20211104210853275"
+>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#编辑防火墙软件&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo vim /etc/sysconfig/iptables
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#添加开放端口供服务访问&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-A INPUT -m state --state NEW -m tcp -p tcp --dport &lt;span class="m">8888&lt;/span> -j ACCEPT
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#重启以生效&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl restart iptables.service
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 设置防火墙开启自启&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl &lt;span class="nb">enable&lt;/span> iptables.service
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="配置-jupyterhub-服务">配置 Jupyterhub 服务&lt;/h2>
+&lt;p>由于 jupyter notebook 只能单用户登录使用，不符合实际要求，这里我们配置 jupyterhub 服务。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ conda install JupyterHub &lt;span class="c1">#conda 环境下安装jupyterhub&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ jupyterhub --generate-config &lt;span class="c1">#生成配置文件 Writing default config to: jupyterhub_config.py&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">c.JupyterHub.hub_ip &lt;span class="o">=&lt;/span> &lt;span class="s1">&amp;#39;&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">c.JupyterHub.hub_connect_ip &lt;span class="o">=&lt;/span> &lt;span class="s1">&amp;#39;0.0.0.0&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">c.JupyterHub.bind_url &lt;span class="o">=&lt;/span> &lt;span class="s1">&amp;#39;http://0.0.0.0:8888&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">c.JupyterHub.admin_users &lt;span class="o">=&lt;/span> set&lt;span class="o">(&lt;/span>&lt;span class="s1">&amp;#39;george&amp;#39;&lt;/span>&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">c.JupyterHub.ip &lt;span class="o">=&lt;/span> &lt;span class="s1">&amp;#39;192.168.1.14&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">c.JupyterHub.hub_port &lt;span class="o">=&lt;/span> &lt;span class="m">8081&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 启动服务&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#$ jupyterhub &lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111140004651.png"
+loading="lazy"
+alt="image-20211114000436416"
+>&lt;/p>
+&lt;h3 id="在-kubernetes-上部署-jupyterhub-服务">在 Kubernetes 上部署 jupyterhub 服务&lt;/h3>
+&lt;p>&lt;a class="link" href="https://kubernetes.io/" target="_blank" rel="noopener"
+>Kubernetes&lt;/a> 简称 k8s，是一个开源的云服务后台管理工具，把服务直接打包成容器运行在服务器上，可以将环境与宿主机隔离，不影响宿主机开发环境。&lt;/p>
+&lt;p>&lt;img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202111051515336.svg"
+loading="lazy"
+alt="Deployment evolution"
+>&lt;/p>
+&lt;p>具体可以参考：https://z2jh.jupyter.org/en/latest/&lt;/p>
+&lt;h2 id="参考资料">参考资料&lt;/h2></description></item><item><title>Docker网络探秘</title><link>https://goujianing.ml/p/docker%E7%BD%91%E7%BB%9C%E6%8E%A2%E7%A7%98/</link><pubDate>Wed, 03 Nov 2021 16:48:18 +0800</pubDate><guid>https://goujianing.ml/p/docker%E7%BD%91%E7%BB%9C%E6%8E%A2%E7%A7%98/</guid><description>&lt;h2 id="docker网络">Docker网络&lt;/h2>
+&lt;p>Docker 是一个及其轻量化的应用容器，能够轻松将开发环境与应用打包至镜像进行发布，能达到“Develop Once，Run Anywhere”的效果。Docker 容器跟宿主机、不同容器之间究竟是如何通信的呢？这是Docker的核心内容。&lt;/p>
+&lt;h3 id="docker0">Docker0&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="o">(&lt;/span>base&lt;span class="o">)&lt;/span> george@george ~/test$ ifconfig
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker0: &lt;span class="nv">flags&lt;/span>&lt;span class="o">=&lt;/span>4163&amp;lt;UP,BROADCAST,RUNNING,MULTICAST&amp;gt; mtu &lt;span class="m">1500&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> inet 172.17.0.1 netmask 255.255.0.0 broadcast 172.17.255.255
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> inet6 fe80::42:9eff:fe6d:8c1c prefixlen &lt;span class="m">64&lt;/span> scopeid 0x20&amp;lt;link&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ether 02:42:9e:6d:8c:1c txqueuelen &lt;span class="m">0&lt;/span> &lt;span class="o">(&lt;/span>Ethernet&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> RX packets &lt;span class="m">134541&lt;/span> bytes &lt;span class="m">14183525&lt;/span> &lt;span class="o">(&lt;/span>14.1 MB&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> RX errors &lt;span class="m">0&lt;/span> dropped &lt;span class="m">0&lt;/span> overruns &lt;span class="m">0&lt;/span> frame &lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> TX packets &lt;span class="m">501775&lt;/span> bytes &lt;span class="m">629260746&lt;/span> &lt;span class="o">(&lt;/span>629.2 MB&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> TX errors &lt;span class="m">0&lt;/span> dropped &lt;span class="m">0&lt;/span> overruns &lt;span class="m">0&lt;/span> carrier &lt;span class="m">0&lt;/span> collisions &lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>开启了Docker之后，发现网卡中多了一个 Docker0 ，这可以充当一个路由器的功能，使得所有容器通过网络桥接的方式相互通信。如我们启动其他容器后：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">docker1：tomcat01 172.17.0.2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker2：tomcat02 172.17.0.3
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/docker_net.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>如果容器采用 host 模式，这种情况下容器与宿主机共享网络，其余情况通过 veth-pair 进行桥接，进而实现容器间的通信。&lt;/p>
+&lt;h3 id="如何使用docker部署-redis-集群">如何使用Docker部署 redis 集群&lt;/h3>
+&lt;p>在如今的大数据与机器学习时代，几乎所有的服务都跑在集群上的。相比单机服务器来说，集群能够发挥负载均衡、高可用等特性。下面将演示如何在 docker 容器中部署 6 个redis 集群。&lt;/p>
+&lt;p>1、创建子网&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ docker network create redis --subnet 172.38.0.0/16
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">通过构建子网，使得redis集群处于同一子网
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>2、创建redis集群的配置文件&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="k">for&lt;/span> port in &lt;span class="k">$(&lt;/span>seq &lt;span class="m">1&lt;/span> 6&lt;span class="k">)&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>&lt;span class="k">do&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>mkdir -p /mydata/redis/node-&lt;span class="si">${&lt;/span>&lt;span class="nv">port&lt;/span>&lt;span class="si">}&lt;/span>/conf
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cat &lt;span class="s">&amp;lt;&amp;lt; EOF &amp;gt;/mydata/redis/node-${port}/conf/redis.conf
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">port 6379
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">bind 0.0.0.0
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">cluster-enabled yes
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">cluster-config-file nodes.conf
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">cluster-node-timeout 5000
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">cluster-announce-ip 172.38.0.1${port}
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">cluster-announce-port 6379
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">cluster-announce-bus-port 16379
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">sppendonly yes
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">EOF&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">done&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>3、依次启动6个redis集群&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ docker run -p 6371:6379 -p 16371:16379 --name redis-1 &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-v /mydata/redis/node-1/data:/data &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-v /redis_cluster/mydata/redis/node-1/conf/redis.conf:/etc/redis/redis.conf &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-d --net redis --ip 172.38.0.11 redis:5.0.9-alpine3.11 redis-server /etc/redis/redis.conf
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">依次替换 端口号 redis集群名称 ip地址，启动集群
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>4、进入集群&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ docker &lt;span class="nb">exec&lt;/span> -it redis-1 /bin/bash
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/data &lt;span class="c1"># redis-cli --cluster create 172.38.0.11:6379 172.38.0.12:6379 172.38.0.13:6379 172.38.0.14:6379 172.38.0.15:6379 172.38.0.16:6379 --cluster-replicas 1&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>费曼学习法-学习笔记</title><link>https://goujianing.ml/p/%E8%B4%B9%E6%9B%BC%E5%AD%A6%E4%B9%A0%E6%B3%95-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link><pubDate>Mon, 11 Mar 2019 00:00:00 +0000</pubDate><guid>https://goujianing.ml/p/%E8%B4%B9%E6%9B%BC%E5%AD%A6%E4%B9%A0%E6%B3%95-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid><description>&lt;p>我们平时疯狂吸收大量知识，但是实际上，我们在实践中用到已知知识作为参考价了吗？
+实际上我们的学习知识停留在了纸面上的认知，没有经过大脑的进一步加工，没有输出，没有自己的理解，这样当然不能算作知识。那么如何高效学习呢？&lt;/p>
+&lt;h2 id="费曼学习法">费曼学习法&lt;/h2>
+&lt;p>大物理学家费曼的费曼学习法自问世以来，受到了大量的关注，他制定了一个简单的学习流程[1]。&lt;/p>
+&lt;p>&lt;strong>费曼学习法流程&lt;/strong>&lt;/p>
+&lt;pre>&lt;code>1、确定要学习的目标。
+2、理解学习的对象
+3、以教代学，用输出代替输入（非常重要）
+4、进行回顾与反思
+5、实现知识的简化和吸收
+&lt;/code>&lt;/pre>
+&lt;p>&lt;strong>费曼学习法简化版&lt;/strong>&lt;/p>
+&lt;pre>&lt;code>1、Concept （理解学习对象的概念）
+2、Teach （经过自己思想的加工，将学习对象传授给别人）
+3、Review （复盘自己的不足，直到炉火纯青）
+4、Simplify （不断简化自己的输出，做到言简意赅，一语中的，直击事物本质）
+&lt;/code>&lt;/pre>
+&lt;p>经过这一套流程后，再进行不停地Review，会让整个知识融会贯通。&lt;/p>
+&lt;h2 id="一些自己的总结">一些自己的总结&lt;/h2>
+&lt;h3 id="什么是学习的本质">什么是学习的本质&lt;/h3>
+&lt;p>学习的本质就是不仅仅是知识，而是思维。&lt;/p>
+&lt;h3 id="马太效应">马太效应&lt;/h3>
+&lt;p>“马太效应”，就是任何个体、群体或地区，一旦在某一个方面（如金钱、名誉、地位等）获得成功和进步，就会产生一种积累优势，就会有更多的机会取得更大的成功和进步。一但某一方面做出成就了，就会在其他方面扩大这个优势。&lt;/p>
+&lt;p>&lt;strong>费曼学习法其实就是马太效应，一但有不错的输出，或产生了不错的影响，就会反过来作用于输入，增加输入的能力，在下一次输出的时候能够产生更加好的效果&lt;/strong>。&lt;/p>
+&lt;h3 id="学习的目的究竟是什么">学习的目的究竟是什么？&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>许多人把学习的目的给搞错了，学习不止是为了记住什么，而是我们通过学习建立行之有效的思维框架，并将知识运用到实践中，解决生活和工作中的实际问题。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>学习要以目标为导向，，不可毫无方向，制定的目标要有挑战性、可行性、可调性&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>学习总结，形成思维导图，编写属于自己的学习笔记或者书籍。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="费曼学习法的核心以教催学">费曼学习法的核心（以教催学）&lt;/h3>
+&lt;p>验证我们是否真正掌握了一种知识，在于你是否能用最简单、直白的语言说清楚他的本质。通过不断输出的方式，促使我们快速学习。&lt;/p>
+&lt;p>&lt;img src="https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202112131514833.png"
+loading="lazy"
+alt="费曼学习法留存率"
+>&lt;/p>
+&lt;p>费曼学习法格外重视“输出”的作用，复述你所理解到的知识并让听者能够简单地理解，这就是检验你学习成果最好的方式。&lt;/p>
+&lt;p>输出是最大的学习力&lt;/p>
+&lt;p>如何输出？过去有一门流行的课程叫做《如何成为有效学习的高手》，讲到了一个学习原则，就是学完一门知识，你要将它制作成课程，挂到互联网上销售。
+一门课程，需要满足的要求有什么呢？&lt;/p>
+&lt;p>你想，你要去网上买一门课程，第一，你非常急需，具有前沿和专业特性，语言简洁易懂，不要向常规教科书那样晦涩难懂；用此精准，没有歧义；一定要有一定深度，对于入门级教程也不用过于深入；一定要有自己的理解。&lt;/p>
+&lt;h2 id="参考文献">参考文献&lt;/h2>
+&lt;p>[1]: 费曼学习法（用输出倒逼输入）, 江苏凤凰文艺出版社&lt;/p></description></item></channel></rss>
