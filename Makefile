@@ -6,4 +6,4 @@ serve:
 	hugo server
 
 clean:
-	rm -rf public resources
+	rm -rf public
