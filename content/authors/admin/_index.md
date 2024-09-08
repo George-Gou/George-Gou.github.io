@@ -37,13 +37,13 @@ profiles:
   - icon: academicons/cv
     url: uploads/resume.pdf
     label: Download my resume
-  - icon: github
+  - icon: brand-github
     url: https://github.com/George-Gou
   - icon: wechat
     url: uploads/wechat.png
-  - icon: Bilibili
+  - icon: bilibili
     url: https://space.bilibili.com/320619371?spm_id_from=333.1007.0.0
-  - icon: Youtube
+  - icon: youtube
     url: https://www.youtube.com/channel/UC0KSAsvYhalyewiYHXRXBqA
    
 
@@ -54,6 +54,6 @@ highlight_name: true
 website: ""
 ---
 
-Chien Shiung Wu is a professor of artificial intelligence at the Stanford AI Lab. Her research interests include
-distributed robotics, mobile computing and programmable matter. She leads the Robotic Neurobiology group, which develops
-self-reconfiguring robots, systems of self-organizing robots, and mobile sensor networks.
+Jianing Gou is currently a PhD candidate in Geodesy at the University of California, Berkeley. He is currently working on the application of machine learning and modern digital signal processing methods in geodesy and geophysical data processing.
+
+His current main work is to use gravity, seismometers, GNSS to understand the internal structure of the earth and geodynamics, as well as seismic geodesy. He is currently working on the application of artificial intelligence methods such as machine learning in gravity time series, and has a strong interest in the application of current computer technology in earth science.
