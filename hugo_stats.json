@@ -8,11 +8,14 @@
       "button",
       "circle",
       "div",
+      "em",
       "footer",
       "h1",
       "h2",
+      "h3",
       "head",
       "header",
+      "hr",
       "html",
       "i",
       "input",
@@ -29,6 +32,7 @@
       "script",
       "section",
       "span",
+      "strong",
       "style",
       "svg",
       "time",
@@ -214,6 +218,7 @@
       "pb-6",
       "pb-8",
       "pl-1",
+      "pl-4",
       "powered-by",
       "pr-1",
       "pr-4",
@@ -243,6 +248,7 @@
       "rtl:-rotate-180",
       "rtl:pl-9",
       "rtl:pr-3",
+      "rtl:pr-4",
       "rtl:text-left",
       "scroll-my-6",
       "scroll-py-6",
@@ -280,13 +286,14 @@
       "z-20"
     ],
     "ids": [
-      "desktop-apps",
-      "editor--terminal",
       "hide-button",
+      "manuals",
       "moon",
       "nav-menu",
       "nav-toggle",
       "page-bg",
+      "scientific-website",
+      "scientist-personal-website",
       "search",
       "search_toggle",
       "share-link-email",
@@ -296,9 +303,10 @@
       "share-link-x",
       "show-button",
       "site-header",
+      "software",
       "sun",
       "top",
-      "website"
+      "websites"
     ]
   }
 }
