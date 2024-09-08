@@ -20,3 +20,10 @@ zh:
       - name: 博客
         url: 'blog/'
         weight: 1
+      - name: 归档
+        url: 'tags/'
+        weight: 2
+      - name: 项目
+        url: 'projects/'
+        weight: 3      
+      

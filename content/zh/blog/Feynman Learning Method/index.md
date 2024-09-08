@@ -1,6 +1,6 @@
 ---
-title: 📈 Feynman Learning Method
-summary: try more ouput than input.
+title: 📈 费曼学习法
+summary: 尝试用更多的输出来倒逼输入.
 date: 2024-9-8
 authors:
   - admin
