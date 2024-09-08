@@ -17,6 +17,6 @@ zh:
 #    description: Site description in Chinese...
   menu:
     main:
-      - name: 传
-        url: '#about'
+      - name: 博客
+        url: 'blog/'
         weight: 1
