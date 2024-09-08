@@ -17,16 +17,16 @@ zh:
 #    description: Site description in Chinese...
   menu:
     main:
-      - name: Home
+      - name: 首页
         url: /
-        eight: 1  
+        eight:  10  
       - name: 博客
         url: 'blog/'
-        weight: 2
+        weight: 20
       - name: 归档
         url: 'tags/'
-        weight: 3
+        weight: 30
       - name: 项目
         url: 'projects/'
-        weight: 4      
+        weight: 40      
       
