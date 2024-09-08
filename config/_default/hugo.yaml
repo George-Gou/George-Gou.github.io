@@ -16,7 +16,7 @@ cascade:
       path: /blog/**
       kind: page
     pager: true
-    editable: true
+    editable: false
     hide_date: false
     show_date_updated: true
     reading_time: true
