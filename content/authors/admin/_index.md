@@ -17,35 +17,35 @@ status:
 superuser: true
 
 # Role/position/tagline
-role: Professor of Artificial Intelligence
+role: Full-stack software, surveying and metrology engineer
 
 # Organizations/Affiliations to show in About widget
 organizations:
-  - name: Stanford University
-    url: https://www.stanford.edu/
+  - name: Hubei Earthquake Agency
+    url: http://www.hubdzj.gov.cn/
 
 # Short bio (displayed in user profile at end of posts)
-bio: My research interests include distributed robotics, mobile computing and programmable matter.
+bio: My research interests include deep learning method and digital signal processing method in earth science.
 
 # Social Networking
 # Need to use another icon? Simply download the SVG icon to your `assets/media/icons/` folder.
 profiles:
   - icon: at-symbol
-    url: 'mailto:your-email@example.com'
+    url: 'gravpher@163.com'
     label: E-mail Me
-  - icon: brands/x
-    url: https://twitter.com/GetResearchDev
-  - icon: brands/instagram
-    url: https://www.instagram.com/
-  - icon: brands/linkedin
-    url: https://www.linkedin.com/
   # Link to a PDF of your resume/CV - upload it to `static/uploads/resume.pdf`
   - icon: academicons/cv
     url: uploads/resume.pdf
     label: Download my resume
-  - icon: rss
-    url: ./post/index.xml
-    label: Subscribe to my blog via RSS feed
+  - icon: github
+    url: https://github.com/George-Gou
+  - icon: wechat
+    url: uploads/wechat.png
+  - icon: Bilibili
+    url: https://space.bilibili.com/320619371?spm_id_from=333.1007.0.0
+  - icon: Youtube
+    url: https://www.youtube.com/channel/UC0KSAsvYhalyewiYHXRXBqA
+   
 
 # Highlight the author in author lists? (true/false)
 highlight_name: true
