@@ -31,7 +31,7 @@ bio: My research interests include deep learning method and digital signal proce
 # Need to use another icon? Simply download the SVG icon to your `assets/media/icons/` folder.
 profiles:
   - icon: at-symbol
-    url: 'gravpher@163.com'
+    url: 'https://gravpher@163.com'
     label: E-mail Me
   # Link to a PDF of your resume/CV - upload it to `static/uploads/resume.pdf`
   - icon: academicons/cv
@@ -41,8 +41,6 @@ profiles:
     url: https://github.com/George-Gou
   - icon: wechat
     url: uploads/wechat.png
-  - icon: bilibili
-    url: https://space.bilibili.com/320619371?spm_id_from=333.1007.0.0
   - icon: youtube
     url: https://www.youtube.com/channel/UC0KSAsvYhalyewiYHXRXBqA
    
