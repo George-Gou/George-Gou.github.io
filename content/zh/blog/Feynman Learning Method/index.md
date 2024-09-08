@@ -1,5 +1,5 @@
 ---
-title: 📈 Communicate your results effectively with the best data visualizations
+title: 📈 Feynman Learning Method
 summary: try more ouput than input.
 date: 2024-9-8
 authors:
@@ -7,7 +7,7 @@ authors:
 tags:
   - fimen 
 image:
-  caption: 'Image credit: [**Unsplash**](https://unsplash.com)'
+  caption: 'https://cdn.jsdelivr.net/gh/George-Gou/PictureBed@master/2022/202112131514833.png'
 ---
 
 我们平时疯狂吸收大量知识，但是实际上，我们在实践中用到已知知识作为参考价了吗？

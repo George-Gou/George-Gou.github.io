@@ -33,7 +33,7 @@ profiles:
   - icon: wechat
     url: uploads/wechat.png
   - icon: at-symbol
-    url: 'https://goujianing19@mail.ucas.ac.cn'
+    url: 'https://goujianing19_at_mail.ucas.ac.cn'
     label: E-mail Me
   # Link to a PDF of your resume/CV - upload it to `static/uploads/resume.pdf`
   - icon: academicons/cv
