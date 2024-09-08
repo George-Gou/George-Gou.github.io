@@ -1,7 +1,7 @@
 ---
 title: Why is Gravity Important in Metrology?
 summary: The measurement of gravity is a critical factor when trying to achieve the highest degree of accuracy, or the lowest uncertainty.
-date: 2024-9-8
+date: 2023-10-25
 authors:
   - admin
 tags:
